@@ -33,7 +33,14 @@ int main(int argc, char **argv) {
     std::cout << "Test access rights:\n";
     utils::print_access_rights(rightsInfo);
     OwnerInfo ownerInfo = os_utils::get_owner_info(programPath);
-    std::cout << "Test owner info:\n";
+    std::cout << "Test owner info:\n\t";
+    std::cout << ownerInfo.ownerDomain << "\\" << ownerInfo.ownerName << "\n";
+    std::wstring testRegKey = L"CURRENT_USER\\Software\\Chromium\\BLBeacon";
+    std::cout << "Test registry key access rights:\n";
+    rightsInfo = os_utils::get_access_info(testRegKey);
+    utils::print_access_rights(rightsInfo);
+    std::cout << "Test registry key owner info:\n";
+    ownerInfo = os_utils::get_owner_info(testRegKey);
     std::cout << ownerInfo.ownerDomain << "\\" << ownerInfo.ownerName << "\n";
 
     return 0;

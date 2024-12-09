@@ -326,20 +326,16 @@ namespace os_utils {
         if (GetNamedSecurityInfoW(
                 path.c_str(), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION,
                 nullptr, nullptr, &dacl, nullptr, &securityDescriptor) != ERROR_SUCCESS) {
-            std::wcerr << L"Failed to get security descriptor. Error: " << GetLastError() << std::endl;
-            return rightsInfo;
-        }
-
-        if (!dacl) {
-            std::wcerr << L"No DACL present for the object: " << path << std::endl;
-            LocalFree(securityDescriptor);
-            return rightsInfo;
+            if (GetNamedSecurityInfoW(
+                    path.c_str(), SE_REGISTRY_KEY, DACL_SECURITY_INFORMATION,
+                    nullptr, nullptr, &dacl, nullptr, &securityDescriptor) != ERROR_SUCCESS) {
+                return rightsInfo;
+            }
         }
 
         for (DWORD i = 0; i < dacl->AceCount; i++) {
             PACE_HEADER aceHeader = nullptr;
             if (!GetAce(dacl, i, reinterpret_cast<void **>(&aceHeader))) {
-                std::wcerr << L"Failed to get ACE at index " << i << L". Error: " << GetLastError() << std::endl;
                 continue;
             }
 
@@ -391,7 +387,11 @@ namespace os_utils {
         if (GetNamedSecurityInfoW(
                 path.c_str(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION,
                 &ownerSid, nullptr, nullptr, nullptr, &securityDescriptor) != ERROR_SUCCESS) {
-            return ownerInfo;
+            if (GetNamedSecurityInfoW(
+                    path.c_str(), SE_REGISTRY_KEY, OWNER_SECURITY_INFORMATION,
+                    &ownerSid, nullptr, nullptr, nullptr, &securityDescriptor) != ERROR_SUCCESS) {
+                return ownerInfo;
+            }
         }
 
         if (!IsValidSid(ownerSid)) {

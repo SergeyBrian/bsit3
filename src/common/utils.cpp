@@ -89,37 +89,37 @@ namespace utils {
             std::cout << "Set Bit Names:\n";
 
             if (entry.accessMask & DELETE) {
-                std::cout << " - DELETE\n";
+                std::cout << "\t+ DELETE\n";
             }
             if (entry.accessMask & READ_CONTROL) {
-                std::cout << " - READ_CONTROL\n";
+                std::cout << "\t+ READ_CONTROL\n";
             }
             if (entry.accessMask & WRITE_DAC) {
-                std::cout << " - WRITE_DAC\n";
+                std::cout << "\t+ WRITE_DAC\n";
             }
             if (entry.accessMask & WRITE_OWNER) {
-                std::cout << " - WRITE_OWNER\n";
+                std::cout << "\t+ WRITE_OWNER\n";
             }
             if (entry.accessMask & SYNCHRONIZE) {
-                std::cout << " - SYNCHRONIZE\n";
+                std::cout << "\t+ SYNCHRONIZE\n";
             }
             if (entry.accessMask & STANDARD_RIGHTS_REQUIRED) {
-                std::cout << " - STANDARD_RIGHTS_REQUIRED\n";
+                std::cout << "\t+ STANDARD_RIGHTS_REQUIRED\n";
             }
             if (entry.accessMask & STANDARD_RIGHTS_READ) {
-                std::cout << " - STANDARD_RIGHTS_READ\n";
+                std::cout << "\t+ STANDARD_RIGHTS_READ\n";
             }
             if (entry.accessMask & STANDARD_RIGHTS_WRITE) {
-                std::cout << " - STANDARD_RIGHTS_WRITE\n";
+                std::cout << "\t+ STANDARD_RIGHTS_WRITE\n";
             }
             if (entry.accessMask & STANDARD_RIGHTS_EXECUTE) {
-                std::cout << " - STANDARD_RIGHTS_EXECUTE\n";
+                std::cout << "\t+ STANDARD_RIGHTS_EXECUTE\n";
             }
             if (entry.accessMask & STANDARD_RIGHTS_ALL) {
-                std::cout << " - STANDARD_RIGHTS_ALL\n";
+                std::cout << "\t+ STANDARD_RIGHTS_ALL\n";
             }
             if (entry.accessMask & SPECIFIC_RIGHTS_ALL) {
-                std::cout << " - SPECIFIC_RIGHTS_ALL\n";
+                std::cout << "\t+ SPECIFIC_RIGHTS_ALL\n";
             }
 
             std::cout << "\n";
