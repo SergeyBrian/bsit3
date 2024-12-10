@@ -10,13 +10,39 @@ set(COMMON_SRC
         src/common/alias.cpp
         src/common/utils.cpp
         src/common/utils.hpp
+        src/common/logging.hpp
+        src/common/errors.hpp
+        src/common/proto/request.cpp
+        src/common/proto/request.hpp
+        src/common/proto/message.cpp
+        src/common/proto/message.hpp
+        src/common/proto/response.cpp
+        src/common/proto/response.hpp
+        "src/common/proto/packable.cpp"
+        "src/common/proto/packable.hpp"
+        src/common/proto/proto.cpp
+        src/common/proto/proto.hpp
 )
 
 add_executable(server src/server/main.cpp
         src/server/os_utils.cpp
         src/server/os_utils.hpp
-        ${COMMON_SRC})
+        ${COMMON_SRC}
+        src/server/server/server.cpp
+        src/server/server/server.hpp
+        src/server/test.cpp
+        src/server/test.hpp
+        src/server/server/tcp.cpp
+        src/server/server/tcp.hpp)
 add_executable(client src/client/main.cpp
-        ${COMMON_SRC})
+        src/client/cli/cli.cpp
+        src/client/cli/cli.hpp
+        src/client/connector/connector.cpp
+        src/client/connector/connector.hpp
+        ${COMMON_SRC}
+        src/client/connector/tcp.cpp
+        src/client/connector/tcp.hpp
+        src/client/connector/context.cpp
+        src/client/connector/context.hpp)
 
 target_link_libraries(server)
