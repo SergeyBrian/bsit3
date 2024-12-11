@@ -2,8 +2,6 @@
 
 #include <utility>
 #include "../../common/logging.hpp"
-#include "../../common/proto/request.hpp"
-#include "../../common/proto/message.hpp"
 #include "tcp.hpp"
 
 
@@ -42,14 +40,16 @@ namespace connector {
 
     ERR Connector::getOsInfo(OSInfo *res) const {
         auto req = proto::Request(proto::REQ_OS_INFO);
-        ERR err;
+        ERR err = ERR_Ok;
         proto::Response *resp = exec(&req, &err);
 
         if (err != ERR_Ok) {
             return err;
         }
 
-        *res = reinterpret_cast<proto::OsInfoResponse *>(resp)->info;
+        if (res) {
+            *res = reinterpret_cast<proto::OsInfoResponse *>(resp)->info;
+        }
 
         return err;
     }

@@ -18,6 +18,7 @@ namespace proto {
         const u8 *pack(size_t *size) const override;
         explicit Request(RequestType type);
         Request(RequestType type, std::wstring arg);
+        explicit Request(const u8 *buf);
     };
 }
 

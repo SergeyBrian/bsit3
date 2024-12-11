@@ -32,4 +32,19 @@ namespace proto {
     Request::Request(RequestType type) : type(type) {}
 
     Request::Request(RequestType type, std::wstring arg) : type(type), arg(std::move(arg)) {}
+
+    Request::Request(const u8 *buf) {
+        auto size = *reinterpret_cast<const size_t *>(buf);
+        buf += sizeof(size);
+        type = static_cast<RequestType>(*buf);
+        buf += sizeof(type);
+
+        size -= sizeof(size) + sizeof(type);
+        if (size > 0) {
+            size_t num_wchars = size / sizeof(wchar_t);
+            auto wbuf = reinterpret_cast<const wchar_t*>(buf);
+
+            arg.assign(wbuf, num_wchars);
+        }
+    }
 }

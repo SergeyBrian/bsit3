@@ -10,6 +10,8 @@ namespace proto {
         auto tmp = buf;
         *reinterpret_cast<size_t *>(tmp) = *size;
         tmp += sizeof(*size);
+        *tmp = RESP_OS_INFO;
+        tmp += sizeof(ResponseType);
         *tmp = info.type;
         tmp += sizeof(info.type);
         *reinterpret_cast<u16 *>(tmp) = info.version.major;
@@ -30,4 +32,6 @@ namespace proto {
         info.version.minor = *reinterpret_cast<const u16 *>(buf);
         *err = ERR_Ok;
     }
+
+    OsInfoResponse::OsInfoResponse(OSInfo info) : info(info){}
 }

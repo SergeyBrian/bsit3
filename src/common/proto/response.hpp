@@ -12,7 +12,8 @@ namespace proto {
     };
 
     struct Response : Packable {
-        ERR err;
+        ERR err = ERR_Ok;
+        virtual ~Response() {};
     };
 
     struct OsInfoResponse : Response {
@@ -21,6 +22,8 @@ namespace proto {
         const u8 *pack(size_t *size) const override;
 
         OsInfoResponse(const u8 *buf, ERR *err);
+        OsInfoResponse(OSInfo info);
+        ~OsInfoResponse() override {};
     };
 }
 

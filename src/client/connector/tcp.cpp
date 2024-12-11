@@ -16,10 +16,10 @@
 #pragma comment (lib, "AdvApi32.lib")
 
 
-namespace connector :: tcp {
+namespace connector ::tcp {
     Context *ctx;
 
-    ERR reconnect(const std::string& host, u16 port) {
+    ERR reconnect(const std::string &host, u16 port) {
         delete ctx;
         ctx = new Context();
         ERR err = ctx->Connect(host, port);
@@ -27,13 +27,13 @@ namespace connector :: tcp {
         return err;
     }
 
-    proto::Response * exec(proto::Request *req, ERR *err, const std::string& host, u16 port) {
+    proto::Response *exec(proto::Request *req, ERR *err, const std::string &host, u16 port) {
         *err = ERR_Ok;
         if (!ctx || ctx->Expired()) {
             INFO("Reconnecting to the server...");
             *err = reconnect(host, port);
             if (*err != ERR_Ok) {
-                WARN("Error connecting to server: %s", errorText[err]);
+                WARN("Error connecting to server: %s", errorText[*err]);
                 return nullptr;
             }
         }
@@ -46,6 +46,9 @@ namespace connector :: tcp {
             return nullptr;
         }
         proto::Message resp_msg = ctx->Receive(err);
+        if (*err != ERR_Ok) {
+            return nullptr;
+        }
         proto::Response *resp = proto::ParseResponse(&resp_msg, err);
 
         return resp;

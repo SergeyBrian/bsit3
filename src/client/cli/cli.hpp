@@ -35,8 +35,6 @@ namespace cli {
         ERR exec(CMD cmd, int argc, char **argv);
 
         void inputConnectionInfo();
-
-        std::vector<std::string> split(const std::string &s);
     };
 
     inline Cli *g_instance = nullptr;

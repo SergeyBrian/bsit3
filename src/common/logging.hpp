@@ -12,6 +12,6 @@
 #define PRINT_ERROR(FUNCTION_NAME, err)                              \
     do {                                                             \
         fprintf(stderr,                                              \
-                "[!] [" FUNCTION_NAME "] failed, error: 0x%lx\n"     \
+                "[!] [" FUNCTION_NAME "] failed, error: %lu\n"     \
                 "[*] %s:%d\n", err, __FILE__, __LINE__);             \
     } while (0)

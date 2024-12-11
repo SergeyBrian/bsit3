@@ -47,5 +47,14 @@ namespace proto {
         std::memcpy(const_cast<u8 *>(m_buf), buf, m_size);
     }
 
+    bool Message::ValidateBuff(const u8 *buf, size_t size) {
+        auto msg_size = *reinterpret_cast<const size_t *>(buf);
+        return msg_size == size;
+    }
+
+    Message::~Message() {
+        delete[] m_buf;
+    }
+
     Message::Message() = default;
 }

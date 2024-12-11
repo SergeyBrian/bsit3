@@ -1,6 +1,8 @@
 #ifndef ERRORS_HPP
 #define ERRORS_HPP
 
+#include "alias.hpp"
+
 enum ERR : u8 {
     ERR_Ok,
     ERR_Permission_denied,

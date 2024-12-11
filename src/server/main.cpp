@@ -1,4 +1,4 @@
-#include "server/server.hpp"
+#include "server/handlers.hpp"
 #include "test.hpp"
 
 int main(int argc, char **argv) {
@@ -6,9 +6,9 @@ int main(int argc, char **argv) {
     test::PrintTestOutput(argv);
 #endif
 
-    server::Server srv(6969);
-    srv.run();
-
+    server::tcp::Server srv(6969);
+    server::handlers::Init(&srv);
+    srv.Start();
 
     return 0;
 }

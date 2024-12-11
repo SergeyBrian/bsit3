@@ -28,8 +28,8 @@ add_executable(server src/server/main.cpp
         src/server/os_utils.cpp
         src/server/os_utils.hpp
         ${COMMON_SRC}
-        src/server/server/server.cpp
-        src/server/server/server.hpp
+        src/server/server/handlers.cpp
+        src/server/server/handlers.hpp
         src/server/test.cpp
         src/server/test.hpp
         src/server/server/tcp.cpp
