@@ -3,13 +3,15 @@
 
 namespace cli {
 
-    Cli::Cli() : Cli("", 0) {}
+    Cli::Cli() : Cli("", "") {}
 
 
-    Cli::Cli(const std::string &host, u16 port) {
+    Cli::Cli(const std::string &host, const std::string &port) {
         g_instance = this;
 
-        m_connector = new connector::Connector(host, port);
+
+        u16 p = ParsePort(port);
+        m_connector = new connector::Connector(host, p);
     }
 
     void Cli::run() {
@@ -21,6 +23,10 @@ namespace cli {
             std::string command;
             std::cout << m_connector->getHostStr() << " > ";
             std::getline(std::cin >> std::ws, command);
+            if (command.empty()) {
+                cmd = CMD_Nop;
+                continue;
+            }
 
             int argc;
             char **argv = nullptr;
@@ -132,19 +138,25 @@ namespace cli {
                 std::cout << "Port: ";
                 std::cin >> port_str;
 
-                try {
-                    int port_i = std::stoi(port_str);
-                    if (port_i > static_cast<int>(UINT16_MAX) || port_i < 0) {
-                        throw std::out_of_range("port number exceeds 65535");
-                    }
-                    port = static_cast<u16>(port_i);
-                    m_connector->setServer(host, port);
-                } catch (std::invalid_argument const &ex) {
-                    WARN("Invalid port value: %s", ex.what());
-                } catch (std::out_of_range const &ex) {
-                    WARN("Port value too high: %s", ex.what());
-                }
+                port = ParsePort(port_str);
+                m_connector->setServer(host, port);
             }
         } while (!m_connector->checkConnection() && WARN("Can't Connect to %s:%s", host.c_str(), port_str.c_str()));
+    }
+
+    u16 Cli::ParsePort(const std::string &port_str) {
+        try {
+            int port_i = std::stoi(port_str);
+            if (port_i > static_cast<int>(UINT16_MAX) || port_i < 0) {
+                throw std::out_of_range("port number exceeds 65535");
+            }
+            return static_cast<u16>(port_i);
+        } catch (std::invalid_argument const &ex) {
+            WARN("Invalid port value: %s", ex.what());
+        } catch (std::out_of_range const &ex) {
+            WARN("Port value too high: %s", ex.what());
+        }
+
+        return 0;
     }
 }

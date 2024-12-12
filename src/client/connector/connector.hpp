@@ -14,9 +14,9 @@ namespace connector {
     public:
         Connector(const std::string &host, u16 port);
 
-        bool canConnect() const;
+        [[nodiscard]] bool canConnect() const;
 
-        bool checkConnection() const;
+        [[nodiscard]] bool checkConnection() const;
 
         void setServer(std::string host, u16 port);
 
