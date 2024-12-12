@@ -9,6 +9,12 @@
 namespace proto {
     enum RequestType : u8 {
         REQ_OS_INFO,
+        REQ_TIME,
+        REQ_UPTIME,
+        REQ_MEMORY,
+        REQ_DRIVES,
+        REQ_RIGHTS,
+        REQ_OWNER,
     };
 
     struct Request : Packable {

@@ -22,6 +22,8 @@ set(COMMON_SRC
         "src/common/proto/packable.hpp"
         src/common/proto/proto.cpp
         src/common/proto/proto.hpp
+        src/common/tcp_utils.cpp
+        src/common/tcp_utils.hpp
 )
 
 add_executable(server src/server/main.cpp

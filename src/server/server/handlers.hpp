@@ -8,6 +8,7 @@
 
 namespace server::handlers {
     proto::Response *HandleGetOsInfo(proto::Request *req);
+    proto::Response *HandleGetUptime(proto::Request *req);
 
     void Init(tcp::Server *srv);
 }

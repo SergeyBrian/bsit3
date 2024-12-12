@@ -3,11 +3,13 @@
 namespace proto {
     Response *ParseResponse(Message *msg, ERR *err) {
         *err = ERR_Ok;
-        const u8 *buf = msg->buf();
-        auto type = static_cast<ResponseType>(*(buf + sizeof(size_t)));
+        PackCtx ctx(msg->buf());
+        auto type = ctx.pop<ResponseType>();
         switch (type) {
             case RESP_OS_INFO:
-                return new OsInfoResponse(buf, err);
+                return new OsInfoResponse(&ctx, err);
+            case RESP_TIME:
+                return new TimeResponse(&ctx, err);
             default:
                 *err = ERR_Invalid_Response;
                 return nullptr;

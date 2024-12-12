@@ -24,6 +24,19 @@ namespace connector {
 
         ERR getOsInfo(OSInfo *res) const;
 
+        ERR getTime(u64 *time) const;
+
+        ERR getUptime(u64 *res) const;
+
+        ERR getMemory(MemInfo *res) const;
+
+        // TODO: should return array
+        ERR getDrives(DriveInfo *res) const;
+
+        ERR getRights(AccessRightsInfo *res) const;
+
+        ERR getOwner(OwnerInfo *res) const;
+
     private:
         std::string m_host;
         u16 m_port;

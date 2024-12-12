@@ -1,5 +1,6 @@
 #include "cli.hpp"
 #include "../../common/logging.hpp"
+#include "../../common/utils.hpp"
 
 namespace cli {
 
@@ -22,9 +23,9 @@ namespace cli {
             }
             std::string command;
             std::cout << m_connector->getHostStr() << " > ";
-            std::getline(std::cin >> std::ws, command);
+            std::getline(std::cin, command);
             if (command.empty()) {
-                cmd = CMD_Nop;
+                cmd = CMD_Count_;
                 continue;
             }
 
@@ -118,6 +119,20 @@ namespace cli {
     ERR Cli::exec(CMD cmd, int argc, char **argv) {
         ERR err = ERR_Ok;
         switch (cmd) {
+            case CMD_GetOsInfo:
+                return getOsInfo();
+            case CMD_GetTime:
+                return getTime();
+            case CMD_GetUptime:
+                return getUptime();
+            case CMD_GetMemory:
+                return getMemory();
+            case CMD_GetDrives:
+                return getDrives();
+            case CMD_GetRights:
+                return getRights(argv[0]);
+            case CMD_GetOwner:
+                return getOwner(argv[0]);
             default:
                 break;
         }
@@ -158,5 +173,48 @@ namespace cli {
         }
 
         return 0;
+    }
+
+    ERR Cli::getOsInfo() {
+        OSInfo res{};
+        ERR err = m_connector->getOsInfo(&res);
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        std::cout << OSTypeName[res.type] << " " << res.version.major << "." << res.version.minor << std::endl;
+
+        return err;
+    }
+
+    ERR Cli::getTime() {
+        return ERR_Ok;
+    }
+
+    ERR Cli::getUptime() {
+        u64 uptime;
+        ERR err = m_connector->getUptime(&uptime);
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        std::cout << "Time since start: " << utils::format_milliseconds(uptime) << std::endl;
+        return err;
+    }
+
+    ERR Cli::getMemory() {
+        return ERR_Ok;
+    }
+
+    ERR Cli::getDrives() {
+        return ERR_Ok;
+    }
+
+    ERR Cli::getRights(const char *path) {
+        return ERR_Ok;
+    }
+
+    ERR Cli::getOwner(const char *path) {
+        return ERR_Ok;
     }
 }

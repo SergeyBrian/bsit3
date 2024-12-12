@@ -8,8 +8,11 @@
 
 namespace utils {
     std::string format_milliseconds(u64 ms);
+
     std::string format_bytes(u64 bytes);
-    void print_access_rights(const AccessRightsInfo& rightsInfo);
+
+    void print_access_rights(const AccessRightsInfo &rightsInfo);
+
 }
 
 #endif

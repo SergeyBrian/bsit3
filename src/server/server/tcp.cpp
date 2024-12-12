@@ -164,6 +164,7 @@ namespace server::tcp {
             }
             client.recvBufSize += transferred;
             if (!proto::Message::ValidateBuff(client.recvBuf, client.recvBufSize)) {
+                INFO("Message invalid");
                 ScheduleRead(key);
                 return;
             }
@@ -185,6 +186,7 @@ namespace server::tcp {
 
     void Server::ProcessMessage(Client &client, const proto::Message &message) {
         proto::Request req(message.buf());
+        INFO("Received request %d", req.type);
         proto::Response *resp = m_handlers[req.type](&req);
         SendResponse(client, resp);
         delete resp;

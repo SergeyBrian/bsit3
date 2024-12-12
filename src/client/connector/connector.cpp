@@ -38,6 +38,10 @@ namespace connector {
         return m_host;
     }
 
+    proto::Response *Connector::exec(proto::Request *req, ERR *err) const {
+        return connector::tcp::exec(req, err, m_host, m_port);
+    }
+
     ERR Connector::getOsInfo(OSInfo *res) const {
         auto req = proto::Request(proto::REQ_OS_INFO);
         ERR err = ERR_Ok;
@@ -54,7 +58,51 @@ namespace connector {
         return err;
     }
 
-    proto::Response *Connector::exec(proto::Request *req, ERR *err) const {
-        return connector::tcp::exec(req, err, m_host, m_port);
+    ERR Connector::getTime(u64 *res) const {
+        auto req = proto::Request(proto::REQ_TIME);
+        ERR err = ERR_Ok;
+        proto::Response *resp = exec(&req, &err);
+
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        if (res) {
+            *res = reinterpret_cast<proto::TimeResponse *>(resp)->time_ms;
+        }
+
+        return err;
+    }
+
+    ERR Connector::getUptime(u64 *res) const {
+        auto req = proto::Request(proto::REQ_UPTIME);
+        ERR err = ERR_Ok;
+        proto::Response *resp = exec(&req, &err);
+
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        if (res) {
+            *res = reinterpret_cast<proto::TimeResponse *>(resp)->time_ms;
+        }
+
+        return err;
+    }
+
+    ERR Connector::getMemory(MemInfo *res) const {
+        return ERR_Connect;
+    }
+
+    ERR Connector::getDrives(DriveInfo *res) const {
+        return ERR_Connect;
+    }
+
+    ERR Connector::getRights(AccessRightsInfo *res) const {
+        return ERR_Connect;
+    }
+
+    ERR Connector::getOwner(OwnerInfo *res) const {
+        return ERR_Connect;
     }
 }
