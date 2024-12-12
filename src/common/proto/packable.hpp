@@ -45,7 +45,7 @@ namespace proto {
 
         template<typename T>
         void push(T *val, size_t size) {
-            u32 count = size / sizeof(val);
+            u32 count = size / sizeof(*val);
             push(size);
             for (u32 i = 0; i < count; i++) {
                 push(val[i]);
@@ -70,10 +70,10 @@ namespace proto {
 
         template<typename T>
         T *pop(size_t *size) {
-            *size = *m_tmp_buf;
-            m_pop_offset += sizeof(size);
-            auto ptr = reinterpret_cast<T *>(m_tmp_buf);
+            *size = pop<size_t>();
+            auto ptr = reinterpret_cast<T *>(m_tmp_buf + m_pop_offset);
             m_pop_offset += *size;
+            // TODO: REMOVE ALL ALLOCATED MEMORY AT CONTEXT DESTRUCTION (!!!)
             auto res = new T[*size];
             for (u64 i = 0; i < *size; i++) {
                 res[i] = utils::ntoh_generic(ptr[i]);

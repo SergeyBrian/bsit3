@@ -30,12 +30,11 @@ namespace connector {
 
         ERR getMemory(MemInfo *res) const;
 
-        // TODO: should return array
-        ERR getDrives(DriveInfo *res) const;
+        ERR getDrives(std::vector<DriveInfo> *res) const;
 
-        ERR getRights(AccessRightsInfo *res) const;
+        ERR getRights(AccessRightsInfo *res, const std::wstring &str) const;
 
-        ERR getOwner(OwnerInfo *res) const;
+        ERR getOwner(OwnerInfo *res, const std::wstring &str) const;
 
     private:
         std::string m_host;

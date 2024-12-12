@@ -21,16 +21,16 @@ namespace cli {
             if (!m_connector->canConnect()) {
                 inputConnectionInfo();
             }
-            std::string command;
+            std::wstring command;
             std::cout << m_connector->getHostStr() << " > ";
-            std::getline(std::cin, command);
+            std::getline(std::wcin >> std::ws, command);
             if (command.empty()) {
                 cmd = CMD_Count_;
                 continue;
             }
 
             int argc;
-            char **argv = nullptr;
+            wchar_t **argv = nullptr;
 
             cmd = parse_command(command, &argc, &argv);
             ERR err = exec(cmd, argc, argv);
@@ -47,14 +47,14 @@ namespace cli {
         delete m_connector;
     }
 
-    std::vector<std::string> split(const std::string &s) {
-        std::vector<std::string> args;
-        std::string current;
+    std::vector<std::wstring> split(const std::wstring &s) {
+        std::vector<std::wstring> args;
+        std::wstring current;
         bool in_quotes = false;
-        for (char c: s) {
-            if (c == '"') {
+        for (const auto &c: s) {
+            if (c == L'"') {
                 in_quotes = !in_quotes;
-            } else if (c == ' ' && !in_quotes) {
+            } else if (c == L' ' && !in_quotes) {
                 if (!current.empty()) {
                     args.push_back(current);
                     current.clear();
@@ -69,46 +69,51 @@ namespace cli {
         return args;
     }
 
-    CMD Cli::parse_command(const std::string &command, int *argc, char ***argv) {
-        // Delete argv created by previous parse
+    CMD Cli::parse_command(const std::wstring &command, int *argc, wchar_t ***argv) {
         if (*argv != nullptr) {
-            delete *argv;
+            delete[] reinterpret_cast<char*>(*argv);
+            *argv = nullptr;
         }
 
-        std::vector<std::string> args = split(command);
+        std::vector<std::wstring> args = split(command);
 
         CMD cmd = CMD_Count_;
-        for (int i = 0; i < CMD_Count_; i++) {
-            if (args[0] == commandText[i]) {
-                cmd = static_cast<CMD>(i);
-                break;
+        if (!args.empty()) {
+            for (int i = 0; i < CMD_Count_; i++) {
+                if (args[0] == commandText[i]) {
+                    cmd = static_cast<CMD>(i);
+                    break;
+                }
             }
         }
 
         if (cmd == CMD_Count_) {
-            WARN("Unknown command: %s", args[0].c_str());
+            if (!args.empty()) {
+                WARN("Unknown command: %S", args[0].c_str());
+            } else {
+                WARN("Empty command");
+            }
             return cmd;
         }
 
         *argc = static_cast<int>(args.size());
 
-        size_t argv_size = (args.size() + 1) * sizeof(char *);
+        size_t argv_size = (*argc + 1) * sizeof(wchar_t *);
         size_t strings_size = 0;
-        for (const auto &arg: args) {
-            strings_size += arg.size() + 1;
+        for (const auto &arg : args) {
+            strings_size += (arg.size() + 1) * sizeof(wchar_t);
         }
 
         size_t total_size = argv_size + strings_size;
 
         char *block = new char[total_size];
+        *argv = reinterpret_cast<wchar_t **>(block);
 
-        *argv = reinterpret_cast<char **>(block);
-
-        char *strings = block + argv_size;
+        wchar_t *strings = reinterpret_cast<wchar_t *>(block + argv_size);
 
         for (int i = 0; i < *argc; ++i) {
             (*argv)[i] = strings;
-            std::memcpy(strings, args[i].c_str(), args[i].size() + 1);
+            std::memcpy(strings, args[i].c_str(), (args[i].size() + 1) * sizeof(wchar_t));
             strings += args[i].size() + 1;
         }
         (*argv)[*argc] = nullptr;
@@ -116,7 +121,7 @@ namespace cli {
         return cmd;
     }
 
-    ERR Cli::exec(CMD cmd, int argc, char **argv) {
+    ERR Cli::exec(CMD cmd, int argc, wchar_t **argv) {
         ERR err = ERR_Ok;
         switch (cmd) {
             case CMD_GetOsInfo:
@@ -130,9 +135,9 @@ namespace cli {
             case CMD_GetDrives:
                 return getDrives();
             case CMD_GetRights:
-                return getRights(argv[0]);
+                return getRights(argv[1]);
             case CMD_GetOwner:
-                return getOwner(argv[0]);
+                return getOwner(argv[1]);
             default:
                 break;
         }
@@ -203,18 +208,49 @@ namespace cli {
     }
 
     ERR Cli::getMemory() {
-        return ERR_Ok;
+        MemInfo mem{};
+
+        ERR err = m_connector->getMemory(&mem);
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        std::cout << "Total memory: " << utils::format_bytes(mem.total_bytes) << std::endl;
+        std::cout << "Free memory: " << utils::format_bytes(mem.free_bytes) << std::endl;
+
+        return err;
     }
 
     ERR Cli::getDrives() {
-        return ERR_Ok;
+        std::vector<DriveInfo> drives;
+        ERR err = m_connector->getDrives(&drives);
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        std::cout << "Mounted drives:\n";
+        for (const auto &[type, name, free_bytes]: drives) {
+            std::cout << "\t" << name << " [" << DriveTypeName[type] << "] Free space: "
+                      << utils::format_bytes(free_bytes)
+                      << std::endl;
+        }
+
+        return err;
     }
 
-    ERR Cli::getRights(const char *path) {
-        return ERR_Ok;
+    ERR Cli::getRights(const wchar_t *path) {
+        AccessRightsInfo info{};
+        ERR err = m_connector->getRights(&info, path);
+
+        utils::print_access_rights(info);
+        return err;
     }
 
-    ERR Cli::getOwner(const char *path) {
-        return ERR_Ok;
+    ERR Cli::getOwner(const wchar_t *path) {
+        OwnerInfo info{};
+        ERR err = m_connector->getOwner(&info, path);
+
+        std::cout << info.ownerDomain << "\\" << info.ownerName << "\n";
+        return err;
     }
 }

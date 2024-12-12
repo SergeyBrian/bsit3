@@ -6,6 +6,10 @@ namespace server::handlers {
     void Init(tcp::Server *srv) {
         srv->RegisterHandler(proto::REQ_OS_INFO, HandleGetOsInfo);
         srv->RegisterHandler(proto::REQ_UPTIME, HandleGetUptime);
+        srv->RegisterHandler(proto::REQ_DRIVES, HandleGetDrives);
+        srv->RegisterHandler(proto::REQ_MEMORY, HandleGetMemory);
+        srv->RegisterHandler(proto::REQ_RIGHTS, HandleGetRights);
+        srv->RegisterHandler(proto::REQ_OWNER, HandleGetOwner);
     }
 
     proto::Response *HandleGetOsInfo(proto::Request *req) {
@@ -17,5 +21,21 @@ namespace server::handlers {
 
     proto::Response *HandleGetUptime(proto::Request *req) {
         return new proto::TimeResponse(os_utils::get_uptime_ms());
+    }
+
+    proto::Response *HandleGetDrives(proto::Request *req) {
+        return new proto::DrivesResponse(os_utils::get_drives());
+    }
+
+    proto::Response *HandleGetMemory(proto::Request *req) {
+        return new proto::MemoryResponse(os_utils::get_meminfo());
+    }
+
+    proto::Response *HandleGetRights(proto::Request *req) {
+        return new proto::RightsResponse(os_utils::get_access_info(req->arg));
+    }
+
+    proto::Response *HandleGetOwner(proto::Request *req) {
+        return new proto::OwnerResponse(os_utils::get_owner_info(req->arg));
     }
 }

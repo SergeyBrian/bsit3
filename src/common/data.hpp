@@ -35,10 +35,9 @@ struct OSInfo {
 struct MemInfo {
     u64 total_bytes;
     u64 free_bytes;
-    u64 available_bytes;
 };
 
-enum DriveType {
+enum DriveType : u8 {
     DRIVE_TYPE_LOCAL,
     DRIVE_TYPE_NET,
     DRIVE_TYPE_REMOVABLE,

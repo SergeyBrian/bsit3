@@ -187,6 +187,10 @@ namespace server::tcp {
     void Server::ProcessMessage(Client &client, const proto::Message &message) {
         proto::Request req(message.buf());
         INFO("Received request %d", req.type);
+        if (!m_handlers.contains(req.type)) {
+            WARN("Unknown request");
+            return;
+        }
         proto::Response *resp = m_handlers[req.type](&req);
         SendResponse(client, resp);
         delete resp;

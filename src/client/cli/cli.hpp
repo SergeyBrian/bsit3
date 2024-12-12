@@ -20,15 +20,15 @@ namespace cli {
         CMD_Count_
     };
 
-    inline const char *commandText[CMD_Count_] = {
-            "exit",
-            "os",
-            "time",
-            "uptime",
-            "memory",
-            "drives",
-            "rights",
-            "owner",
+    inline const wchar_t *commandText[CMD_Count_] = {
+            L"exit",
+            L"os",
+            L"time",
+            L"uptime",
+            L"memory",
+            L"drives",
+            L"rights",
+            L"owner",
     };
 
     class Cli {
@@ -44,9 +44,9 @@ namespace cli {
     private:
         connector::Connector *m_connector;
 
-        static CMD parse_command(const std::string &command, int *argc, char ***argv);
+        static CMD parse_command(const std::wstring &command, int *argc, wchar_t ***argv);
 
-        ERR exec(CMD cmd, int argc, char **argv);
+        ERR exec(CMD cmd, int argc, wchar_t **argv);
 
         void inputConnectionInfo();
 
@@ -62,9 +62,9 @@ namespace cli {
 
         ERR getDrives();
 
-        ERR getRights(const char *path);
+        ERR getRights(const wchar_t *path);
 
-        ERR getOwner(const char *path);
+        ERR getOwner(const wchar_t *path);
     };
 
     inline Cli *g_instance = nullptr;

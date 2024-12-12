@@ -91,18 +91,66 @@ namespace connector {
     }
 
     ERR Connector::getMemory(MemInfo *res) const {
-        return ERR_Connect;
+        auto req = proto::Request(proto::REQ_MEMORY);
+        ERR err = ERR_Ok;
+        proto::Response *resp = exec(&req, &err);
+
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        if (res) {
+            *res = reinterpret_cast<proto::MemoryResponse *>(resp)->mem_info;
+        }
+
+        return err;
     }
 
-    ERR Connector::getDrives(DriveInfo *res) const {
-        return ERR_Connect;
+    ERR Connector::getDrives(std::vector<DriveInfo> *res) const {
+        auto req = proto::Request(proto::REQ_DRIVES);
+        ERR err = ERR_Ok;
+        proto::Response *resp = exec(&req, &err);
+
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        if (res) {
+            *res = reinterpret_cast<proto::DrivesResponse *>(resp)->drives;
+        }
+
+        return err;
     }
 
-    ERR Connector::getRights(AccessRightsInfo *res) const {
-        return ERR_Connect;
+    ERR Connector::getRights(AccessRightsInfo *res, const std::wstring &str) const {
+        auto req = proto::Request(proto::REQ_RIGHTS, str);
+        ERR err = ERR_Ok;
+        proto::Response *resp = exec(&req, &err);
+
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        if (res) {
+            *res = reinterpret_cast<proto::RightsResponse *>(resp)->rights_info;
+        }
+
+        return err;
     }
 
-    ERR Connector::getOwner(OwnerInfo *res) const {
-        return ERR_Connect;
+    ERR Connector::getOwner(OwnerInfo *res, const std::wstring &str) const {
+        auto req = proto::Request(proto::REQ_OWNER, str);
+        ERR err = ERR_Ok;
+        proto::Response *resp = exec(&req, &err);
+
+        if (err != ERR_Ok) {
+            return err;
+        }
+
+        if (res) {
+            *res = reinterpret_cast<proto::OwnerResponse *>(resp)->info;
+        }
+
+        return err;
     }
 }
