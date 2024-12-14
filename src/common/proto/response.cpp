@@ -45,7 +45,7 @@ TimeResponse::TimeResponse(u64 uptime) : time_ms(uptime) {}
 const u8 *DrivesResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_DRIVES);
-    ctx.push(drives.size());
+    ctx.push(static_cast<usize>(drives.size()));
     for (const auto &drive : drives) {
         ctx.push(drive.type);
         ctx.push(drive.free_bytes);
