@@ -38,7 +38,7 @@ MessageType Message::type() const { return m_type; }
 const u8 *Message::buf() const { return m_buf; }
 
 Message::Message(const u8 *buf) {
-    m_size = utils::hton_generic(*reinterpret_cast<const usize *>(buf));
+    m_size = utils::ntoh_generic(*reinterpret_cast<const usize *>(buf));
     INFO("Received Message of size %lu", m_size);
     utils::dump_memory(buf, MAX_MSG_SIZE);
     assert(m_size <= MAX_MSG_SIZE);
@@ -50,7 +50,7 @@ Message::Message(const u8 *buf) {
 }
 
 bool Message::ValidateBuff(const u8 *buf, usize size) {
-    auto msg_size = *reinterpret_cast<const usize *>(buf);
+    auto msg_size = utils::ntoh_generic(*reinterpret_cast<const usize *>(buf));
     return msg_size == size;
 }
 

@@ -2,9 +2,9 @@
 #define BSIT_3_TCP_HPP
 
 #define WIN32_LEAN_AND_MEAN
-#include <mswsock.h>
 #include <windows.h>
 #include <winsock2.h>
+#include <mswsock.h>
 
 #include <unordered_map>
 

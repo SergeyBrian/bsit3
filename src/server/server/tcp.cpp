@@ -199,14 +199,14 @@ void Server::SendResponse(Client &client, proto::Response *resp) {
     client.sendBufSize = msg.size();
     client.sentSize = 0;
     std::memcpy(client.sendBuf, msg.buf(), msg.size());
-    INFO("Sent message of size %zu", msg.size());
+    INFO("Sent message of size %llu", msg.size());
     utils::dump_memory(msg.buf(), msg.size());
     ScheduleWrite(client);
 }
 
 void Server::ScheduleWrite(Client &client) {
     WSABUF buf{
-        .len = client.sendBufSize - client.sentSize,
+        .len = static_cast<ULONG>(client.sendBufSize - client.sentSize),
         .buf = reinterpret_cast<CHAR *>(client.sendBuf + client.sentSize),
     };
     std::memset(&client.sendOverlap, 0, sizeof(OVERLAPPED));
