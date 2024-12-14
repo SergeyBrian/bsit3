@@ -4,6 +4,10 @@
 #include <cstddef>
 #include <cstdint>
 
+#ifndef MIN
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#endif
+
 using byte = uint8_t;
 
 using u8 = uint8_t;

@@ -37,7 +37,7 @@ void dump_memory(const void *ptr, usize size) {
             }
         }
 
-        std::cout << std::endl;
+        std::cout << std::dec << std::endl;
     }
 }
 }  // namespace utils

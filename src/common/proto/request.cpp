@@ -1,13 +1,19 @@
 #include "request.hpp"
 
-#include <utility>
+#include "../str_utils.hpp"
 
 namespace proto {
 const u8 *Request::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(type);
     if (!arg.empty()) {
-        ctx.push(arg.data(), arg.size() * sizeof(arg[0]));
+        if constexpr (sizeof(wchar_t) == 4) {
+            std::u16string utf16_bytes = utils::make_u16string(arg);
+            ctx.push(utf16_bytes.data(),
+                     utf16_bytes.size() * sizeof(utf16_bytes[0]));
+        } else {
+            ctx.push(arg.data(), arg.size() * sizeof(arg[0]));
+        }
     }
     return ctx.pack(size);
 }

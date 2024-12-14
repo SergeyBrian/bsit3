@@ -16,8 +16,8 @@ set(COMMON_SRC
         src/common/proto/message.hpp
         src/common/proto/response.cpp
         src/common/proto/response.hpp
-        "src/common/proto/packable.cpp"
-        "src/common/proto/packable.hpp"
+        src/common/proto/packable.cpp
+        src/common/proto/packable.hpp
         src/common/proto/proto.cpp
         src/common/proto/proto.hpp
         src/common/tcp_utils.cpp
@@ -40,6 +40,8 @@ add_executable(client src/client/main.cpp
         ${COMMON_SRC}
         src/common/utils.cpp
         src/common/utils.hpp
+        src/common/str_utils.hpp
+        src/common/str_utils.cpp
         src/client/connector/tcp.cpp
         src/client/connector/tcp.hpp
         src/client/connector/context.cpp

@@ -39,8 +39,8 @@ const u8 *Message::buf() const { return m_buf; }
 
 Message::Message(const u8 *buf) {
     m_size = utils::ntoh_generic(*reinterpret_cast<const usize *>(buf));
-    INFO("Received Message of size %lu", m_size);
-    utils::dump_memory(buf, MAX_MSG_SIZE);
+    INFO("Received Message of size %llu", m_size);
+    utils::dump_memory(buf, MIN(m_size, MAX_MSG_SIZE));
     assert(m_size <= MAX_MSG_SIZE);
     buf += sizeof(m_size);
     m_type = static_cast<MessageType>(*buf);

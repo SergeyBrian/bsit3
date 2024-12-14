@@ -1,6 +1,10 @@
 #include "response.hpp"
 
+#include <codecvt>
+#include <locale>
 #include <utility>
+
+#include "../logging.hpp"
 
 namespace proto {
 const u8 *OsInfoResponse::pack(usize *size) const {
@@ -53,13 +57,29 @@ const u8 *DrivesResponse::pack(usize *size) const {
 
 DrivesResponse::DrivesResponse(PackCtx *ctx, ERR *err) {
     auto count = ctx->pop<usize>();
+    INFO("Parsing DrivesResponse");
+    INFO("Drives count: %llu", count);
     for (u64 i = 0; i < count; i++) {
         DriveInfo di;
         di.type = ctx->pop<DriveType>();
+        INFO("Drive type: %d", di.type);
         di.free_bytes = ctx->pop<u64>();
+        INFO("Free bytes: %llu", di.free_bytes);
         usize name_size;
         auto name = ctx->pop<char>(&name_size);
+        INFO("Name: %s", name);
+        /*#ifdef _WIN32*/
         di.name.assign(name, name_size);
+        OKAY("Assigned name");
+        /*#else*/
+        /*        std::wstring_convert<std::codecvt_utf16<char32_t>, char32_t>
+         * converter;*/
+        /*        const char *u16_bytes = reinterpret_cast<const char
+         * *>(name);*/
+        /*        std::u32string u32_str = converter.from_bytes(*/
+        /*            u16_bytes, u16_bytes + name_size * sizeof(char16_t));*/
+        /*        di.name = std::string(u32_str.begin(), u32_str.end());*/
+        /*#endif*/
         drives.push_back(di);
     }
 
@@ -90,7 +110,7 @@ MemoryResponse::MemoryResponse(MemInfo mem_info) : mem_info(mem_info) {}
 const u8 *RightsResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_RIGHTS);
-    ctx.push(rights_info.entries.size());
+    ctx.push(static_cast<usize>(rights_info.entries.size()));
     for (const auto &entry : rights_info.entries) {
         ctx.push(entry.accessMask);
         ctx.push(entry.aceType);

@@ -189,8 +189,9 @@ ERR Cli::getOsInfo() {
         return err;
     }
 
-    std::cout << OSTypeName[res.type] << " " << res.version.major << "."
-              << res.version.minor << std::endl;
+    std::cout << OSTypeName[res.type] << " "
+              << static_cast<u32>(res.version.major) << "."
+              << static_cast<u32>(res.version.minor) << std::endl;
 
     return err;
 }
