@@ -48,7 +48,7 @@ BOOL ConvertSidToStringSidA(PSID Sid, LPSTR *StringSid) {
         identifierAuthority = (identifierAuthority << 8) | Sid[i];
     }
 
-    size_t bufferSize = 3 + 20 + 1 + (subAuthCount * 11) + 1;
+    usize bufferSize = 3 + 20 + 1 + (subAuthCount * 11) + 1;
     char *sidStr = (char *)malloc(bufferSize);
     if (!sidStr) return 0;
 

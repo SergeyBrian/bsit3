@@ -5,12 +5,13 @@
 #include <cstdint>
 
 using byte = uint8_t;
-using usize = size_t;
 
 using u8 = uint8_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
+
+using usize = u64;
 
 constexpr u8 u8_max = 0xFF;
 constexpr u16 u16_max = 0xFFFF;
@@ -28,10 +29,16 @@ using i64 = int64_t;
 using ptr_diff = std::ptrdiff_t;
 using ptr_int = uintptr_t;
 
-inline auto operator ""_KB(u64 const x) { return static_cast<usize>(1024) * static_cast<usize>(x); }
+inline auto operator""_KB(u64 const x) {
+    return static_cast<usize>(1024) * static_cast<usize>(x);
+}
 
-inline auto operator ""_MB(u64 const x) { return static_cast<usize>(1024 * 1024) * static_cast<usize>(x); }
+inline auto operator""_MB(u64 const x) {
+    return static_cast<usize>(1024 * 1024) * static_cast<usize>(x);
+}
 
-inline auto operator ""_GB(u64 const x) { return static_cast<usize>(1024 * 1024 * 1024) * static_cast<usize>(x); }
+inline auto operator""_GB(u64 const x) {
+    return static_cast<usize>(1024 * 1024 * 1024) * static_cast<usize>(x);
+}
 
 #endif

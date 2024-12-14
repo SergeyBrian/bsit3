@@ -5,15 +5,15 @@
 
 namespace utils {
 
-void dump_memory(const void *ptr, size_t size) {
+void dump_memory(const void *ptr, usize size) {
     const uint8_t *bytePtr = static_cast<const uint8_t *>(ptr);
-    const size_t bytesPerLine = 16;
+    const usize bytesPerLine = 16;
 
-    for (size_t i = 0; i < size; i += bytesPerLine) {
+    for (usize i = 0; i < size; i += bytesPerLine) {
         std::cout << std::setw(8) << std::setfill('0') << std::hex
                   << reinterpret_cast<uintptr_t>(bytePtr + i) << ": ";
 
-        for (size_t j = 0; j < bytesPerLine; ++j) {
+        for (usize j = 0; j < bytesPerLine; ++j) {
             if (i + j < size) {
                 std::cout << std::setw(2) << static_cast<int>(bytePtr[i + j])
                           << " ";
@@ -24,7 +24,7 @@ void dump_memory(const void *ptr, size_t size) {
 
         std::cout << " ";
 
-        for (size_t j = 0; j < bytesPerLine; ++j) {
+        for (usize j = 0; j < bytesPerLine; ++j) {
             if (i + j < size) {
                 uint8_t byte = bytePtr[i + j];
                 if (std::isprint(byte)) {

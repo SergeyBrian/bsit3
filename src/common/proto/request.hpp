@@ -1,32 +1,31 @@
 #ifndef REQUESTS_HPP
 #define REQUESTS_HPP
 
-
 #include <string>
+
 #include "../alias.hpp"
 #include "packable.hpp"
 
 namespace proto {
-    enum RequestType : u8 {
-        REQ_OS_INFO,
-        REQ_TIME,
-        REQ_UPTIME,
-        REQ_MEMORY,
-        REQ_DRIVES,
-        REQ_RIGHTS,
-        REQ_OWNER,
-    };
+enum RequestType : u8 {
+    REQ_OS_INFO,
+    REQ_TIME,
+    REQ_UPTIME,
+    REQ_MEMORY,
+    REQ_DRIVES,
+    REQ_RIGHTS,
+    REQ_OWNER,
+};
 
-    struct Request : Packable {
-        RequestType type;
-        std::wstring arg;
+struct Request : Packable {
+    RequestType type;
+    std::wstring arg;
 
-        const u8 *pack(size_t *size) const override;
-        explicit Request(RequestType type);
-        Request(RequestType type, std::wstring arg);
-        explicit Request(const u8 *buf);
-    };
-}
-
+    const u8 *pack(usize *size) const override;
+    explicit Request(RequestType type);
+    Request(RequestType type, std::wstring arg);
+    explicit Request(const u8 *buf);
+};
+}  // namespace proto
 
 #endif

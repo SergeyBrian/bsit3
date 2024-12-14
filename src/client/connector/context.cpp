@@ -81,9 +81,10 @@ ERR Context::Connect(const std::string &host, u16 port) {
     send_sock_addr.sin_addr.s_addr =
         inet_addr(inet_ntoa(*reinterpret_cast<in_addr *>(*h->h_addr_list)));
     send_sock_addr.sin_port = htons(port);
-    int client_sd = socket(AF_INET, SOCK_STREAM, 0);
+    m_socket = socket(AF_INET, SOCK_STREAM, 0);
+    INFO("Trying to connect");
     int status =
-        connect(client_sd, reinterpret_cast<sockaddr *>(&send_sock_addr),
+        connect(m_socket, reinterpret_cast<sockaddr *>(&send_sock_addr),
                 sizeof(send_sock_addr));
     if (status < 0) {
         return ERR_Connect;
@@ -110,6 +111,7 @@ ERR Context::Send(proto::Message *msg) const {
     INFO("Sending request...");
     int res = send(m_socket, reinterpret_cast<const char *>(msg->buf()),
                    static_cast<int>(msg->size()), 0);
+    utils::dump_memory(msg->buf(), msg->size());
     // TODO: check errors
     OKAY("Request sent");
     return ERR_Ok;

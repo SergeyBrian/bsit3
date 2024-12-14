@@ -12,7 +12,7 @@ Message::Message(Packable *p, MessageType type) {
     m_type = type;
 
     const u8 *content_buf = p->pack(&m_size);
-    size_t content_size = m_size;
+    usize content_size = m_size;
 
     m_size += sizeof(m_size);
     m_size += sizeof(m_type);
@@ -20,7 +20,7 @@ Message::Message(Packable *p, MessageType type) {
     m_buf = new u8[m_size];
     auto buf = const_cast<u8 *>(m_buf);
 
-    *reinterpret_cast<size_t *>(buf) = m_size;
+    *reinterpret_cast<usize *>(buf) = utils::ntoh_generic(m_size);
     buf += sizeof(m_size);
     *buf = m_type;
     buf += sizeof(m_type);
@@ -31,14 +31,14 @@ Message::Message(Request *req) : Message(req, MESSAGE_REQUEST) {}
 
 Message::Message(Response *resp) : Message(resp, MESSAGE_RESPONSE) {}
 
-size_t Message::size() const { return m_size; }
+usize Message::size() const { return m_size; }
 
 MessageType Message::type() const { return m_type; }
 
 const u8 *Message::buf() const { return m_buf; }
 
 Message::Message(const u8 *buf) {
-    m_size = utils::hton_generic(*reinterpret_cast<const size_t *>(buf));
+    m_size = utils::hton_generic(*reinterpret_cast<const usize *>(buf));
     INFO("Received Message of size %lu", m_size);
     utils::dump_memory(buf, MAX_MSG_SIZE);
     assert(m_size <= MAX_MSG_SIZE);
@@ -49,8 +49,8 @@ Message::Message(const u8 *buf) {
     std::memcpy(const_cast<u8 *>(m_buf), buf, m_size);
 }
 
-bool Message::ValidateBuff(const u8 *buf, size_t size) {
-    auto msg_size = *reinterpret_cast<const size_t *>(buf);
+bool Message::ValidateBuff(const u8 *buf, usize size) {
+    auto msg_size = *reinterpret_cast<const usize *>(buf);
     return msg_size == size;
 }
 

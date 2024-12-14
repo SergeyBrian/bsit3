@@ -2,97 +2,97 @@
 #define RESPONSE_HPP
 
 #include "../alias.hpp"
-#include "packable.hpp"
-#include "../errors.hpp"
 #include "../data.hpp"
+#include "../errors.hpp"
+#include "packable.hpp"
 
 namespace proto {
-    enum ResponseType : u8 {
-        RESP_OS_INFO,
-        RESP_TIME,
-        RESP_MEMORY,
-        RESP_DRIVES,
-        RESP_RIGHTS,
-        RESP_OWNER,
-    };
+enum ResponseType : u8 {
+    RESP_OS_INFO,
+    RESP_TIME,
+    RESP_MEMORY,
+    RESP_DRIVES,
+    RESP_RIGHTS,
+    RESP_OWNER,
+};
 
-    struct Response : Packable {
-        ERR err = ERR_Ok;
+struct Response : Packable {
+    ERR err = ERR_Ok;
 
-        virtual ~Response() = default;
-    };
+    virtual ~Response() = default;
+};
 
-    struct OsInfoResponse : Response {
-        OSInfo info{};
+struct OsInfoResponse : Response {
+    OSInfo info{};
 
-        const u8 *pack(size_t *size) const override;
+    const u8 *pack(usize *size) const override;
 
-        OsInfoResponse(PackCtx *ctx, ERR *err);
+    OsInfoResponse(PackCtx *ctx, ERR *err);
 
-        explicit OsInfoResponse(OSInfo info);
+    explicit OsInfoResponse(OSInfo info);
 
-        ~OsInfoResponse() override = default;
-    };
+    ~OsInfoResponse() override = default;
+};
 
-    struct TimeResponse : Response {
-        u64 time_ms = 0;
+struct TimeResponse : Response {
+    u64 time_ms = 0;
 
-        const u8 *pack(size_t *size) const override;
+    const u8 *pack(usize *size) const override;
 
-        TimeResponse(PackCtx *ctx, ERR *err);
+    TimeResponse(PackCtx *ctx, ERR *err);
 
-        explicit TimeResponse(u64 uptime);
+    explicit TimeResponse(u64 uptime);
 
-        ~TimeResponse() override = default;
-    };
+    ~TimeResponse() override = default;
+};
 
-    struct DrivesResponse : Response {
-        std::vector<DriveInfo> drives;
+struct DrivesResponse : Response {
+    std::vector<DriveInfo> drives;
 
-        const u8 *pack(size_t *size) const override;
+    const u8 *pack(usize *size) const override;
 
-        DrivesResponse(PackCtx *ctx, ERR *err);
+    DrivesResponse(PackCtx *ctx, ERR *err);
 
-        explicit DrivesResponse(const std::vector<DriveInfo> &drives);
+    explicit DrivesResponse(const std::vector<DriveInfo> &drives);
 
-        ~DrivesResponse() override = default;
-    };
+    ~DrivesResponse() override = default;
+};
 
-    struct MemoryResponse : Response {
-        MemInfo mem_info{};
+struct MemoryResponse : Response {
+    MemInfo mem_info{};
 
-        const u8 *pack(size_t *size) const override;
+    const u8 *pack(usize *size) const override;
 
-        MemoryResponse(PackCtx *ctx, ERR *err);
+    MemoryResponse(PackCtx *ctx, ERR *err);
 
-        explicit MemoryResponse(MemInfo mem_info);
+    explicit MemoryResponse(MemInfo mem_info);
 
-        ~MemoryResponse() override = default;
-    };
+    ~MemoryResponse() override = default;
+};
 
-    struct RightsResponse : Response {
-        AccessRightsInfo rights_info{};
+struct RightsResponse : Response {
+    AccessRightsInfo rights_info{};
 
-        const u8 *pack(size_t *size) const override;
+    const u8 *pack(usize *size) const override;
 
-        RightsResponse(PackCtx *ctx, ERR *err);
+    RightsResponse(PackCtx *ctx, ERR *err);
 
-        explicit RightsResponse(AccessRightsInfo rights_info);
+    explicit RightsResponse(AccessRightsInfo rights_info);
 
-        ~RightsResponse() override = default;
-    };
+    ~RightsResponse() override = default;
+};
 
-    struct OwnerResponse : Response {
-        OwnerInfo info{};
+struct OwnerResponse : Response {
+    OwnerInfo info{};
 
-        const u8 *pack(size_t *size) const override;
+    const u8 *pack(usize *size) const override;
 
-        OwnerResponse(PackCtx *ctx, ERR *err);
+    OwnerResponse(PackCtx *ctx, ERR *err);
 
-        explicit OwnerResponse(OwnerInfo info);
+    explicit OwnerResponse(OwnerInfo info);
 
-        ~OwnerResponse() override = default;
-    };
-}
+    ~OwnerResponse() override = default;
+};
+}  // namespace proto
 
 #endif

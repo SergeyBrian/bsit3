@@ -59,7 +59,7 @@ constexpr T hton_generic(T value) {
         return value;
     }
 }
-void dump_memory(const void *ptr, size_t size);
+void dump_memory(const void *ptr, usize size);
 }  // namespace utils
 
 #endif
