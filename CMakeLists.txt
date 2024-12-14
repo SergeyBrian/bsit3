@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.27)
 project(bsit_3)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -8,8 +8,6 @@ set(COMMON_SRC
         src/common/data.hpp
         src/common/alias.hpp
         src/common/alias.cpp
-        src/common/utils.cpp
-        src/common/utils.hpp
         src/common/logging.hpp
         src/common/errors.hpp
         src/common/proto/request.cpp
@@ -32,8 +30,6 @@ add_executable(server src/server/main.cpp
         ${COMMON_SRC}
         src/server/server/handlers.cpp
         src/server/server/handlers.hpp
-        src/server/test.cpp
-        src/server/test.hpp
         src/server/server/tcp.cpp
         src/server/server/tcp.hpp)
 add_executable(client src/client/main.cpp
@@ -42,6 +38,8 @@ add_executable(client src/client/main.cpp
         src/client/connector/connector.cpp
         src/client/connector/connector.hpp
         ${COMMON_SRC}
+        src/common/utils.cpp
+        src/common/utils.hpp
         src/client/connector/tcp.cpp
         src/client/connector/tcp.hpp
         src/client/connector/context.cpp
