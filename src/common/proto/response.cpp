@@ -30,17 +30,20 @@ const u8 *TimeResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_TIME);
     ctx.push(time_ms);
+    ctx.push(time_zone);
 
     return ctx.pack(size);
 }
 
 TimeResponse::TimeResponse(PackCtx *ctx, ERR *err) {
     time_ms = ctx->pop<u64>();
+    time_zone = ctx->pop<i8>();
 
     *err = ERR_Ok;
 }
 
-TimeResponse::TimeResponse(u64 uptime) : time_ms(uptime) {}
+TimeResponse::TimeResponse(u64 time, i8 time_zone)
+    : time_ms(time), time_zone(time_zone) {}
 
 const u8 *DrivesResponse::pack(usize *size) const {
     PackCtx ctx;

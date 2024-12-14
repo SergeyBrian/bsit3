@@ -196,7 +196,20 @@ ERR Cli::getOsInfo() {
     return err;
 }
 
-ERR Cli::getTime() { return ERR_Ok; }
+ERR Cli::getTime() {
+    u64 time;
+    i8 time_zone;
+    ERR err = m_connector->getTime(&time, &time_zone);
+    if (err != ERR_Ok) {
+        return err;
+    }
+
+    std::cout << utils::format_time(time + time_zone * 3600 * 1000) << " (UTC "
+              << ((time_zone < 0) ? "-" : "+") << abs(time_zone) << ")"
+              << std::endl;
+
+    return err;
+}
 
 ERR Cli::getUptime() {
     u64 uptime;

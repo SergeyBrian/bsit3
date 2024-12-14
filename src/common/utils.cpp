@@ -92,6 +92,21 @@ std::string format_milliseconds(const u64 ms) {
     return oss.str();
 }
 
+std::string format_time(u64 ms) {
+    u64 total_seconds = ms / 1000;
+    u64 seconds = total_seconds % 60;
+    u64 total_minutes = total_seconds / 60;
+    u64 minutes = total_minutes % 60;
+    u64 hours = (total_minutes / 60) % 24;
+
+    std::ostringstream oss;
+    oss << std::setfill('0') << std::setw(2) << hours << ":"
+        << std::setfill('0') << std::setw(2) << minutes << ":"
+        << std::setfill('0') << std::setw(2) << seconds;
+
+    return oss.str();
+}
+
 std::string format_bytes(u64 bytes) {
     const char *sizes[] = {"B", "KB", "MB", "GB", "TB"};
     int order = 0;

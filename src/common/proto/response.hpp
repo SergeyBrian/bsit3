@@ -36,12 +36,13 @@ struct OsInfoResponse : Response {
 
 struct TimeResponse : Response {
     u64 time_ms = 0;
+    i8 time_zone = 0;
 
     const u8 *pack(usize *size) const override;
 
     TimeResponse(PackCtx *ctx, ERR *err);
 
-    explicit TimeResponse(u64 uptime);
+    explicit TimeResponse(u64 time, i8 time_zone = 0);
 
     ~TimeResponse() override = default;
 };
