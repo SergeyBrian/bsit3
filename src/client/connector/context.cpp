@@ -11,7 +11,7 @@ Context::Context(std::chrono::seconds timeout) : m_timeout(timeout) {
 
 Context::~Context() {
 #ifdef _WIN32
-    close(m_socket);
+    closesocket(m_socket);
     WSACleanup();
 #else
     close(m_socket);
@@ -102,7 +102,10 @@ ERR Context::Send(proto::Message *msg) const {
     if (res == SOCKET_ERROR) {
         PRINT_ERROR("send", WSAGetLastError());
         return winCodeToErr(WSAGetLastError());
+    } else {
+        INFO("Succesfully sent %d/%llu bytes!", res, msg->size());
     }
+    utils::dump_memory(msg->buf(), msg->size());
     OKAY("Request sent");
     return ERR_Ok;
 }
@@ -123,10 +126,18 @@ proto::Message Context::Receive(ERR *err) {
     INFO("Waiting for response...");
     char buf[MAX_MSG_SIZE];
     int res;
+    usize res_size = 0;
 
     do {
         res = recv(m_socket, buf, MAX_MSG_SIZE, 0);
+        res_size += res;
+        INFO("Received %d bytes", res);
+        if (proto::Message::ValidateBuff(reinterpret_cast<const u8 *>(buf), res_size)) {
+            OKAY("Valid message");
+            break;
+        }
     } while (res > 0);
+    OKAY("Receiving finished");
 
     if (res < 0) {
         PRINT_ERROR("recv", WSAGetLastError());
@@ -136,7 +147,7 @@ proto::Message Context::Receive(ERR *err) {
     *err = ERR_Ok;
     // TODO: Pass received size to Message constructor to prevent memory
     // overflow exploit
-    return proto::Message(reinterpret_cast<const u8 *>(buf));
+    return proto::Message(1, reinterpret_cast<const u8 *>(buf));
 }
 #else
 proto::Message Context::Receive(ERR *err) {

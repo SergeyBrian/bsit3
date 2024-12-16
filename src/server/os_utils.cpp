@@ -1,8 +1,8 @@
 #include "os_utils.hpp"
 
+#include <windows.h>
 #include <AclAPI.h>
 #include <sddl.h>
-#include <windows.h>
 
 #include <chrono>
 #include <iostream>

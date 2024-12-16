@@ -22,6 +22,8 @@ set(COMMON_SRC
         src/common/proto/proto.hpp
         src/common/tcp_utils.cpp
         src/common/tcp_utils.hpp
+        src/common/proto/encryption/encryption.cpp
+        src/common/proto/encryption/encryption.hpp
 )
 
 add_executable(server src/server/main.cpp

@@ -5,17 +5,29 @@
 
 #include "../logging.hpp"
 #include "../tcp_utils.hpp"
+#include "encryption/encryption.hpp"
 
 namespace proto {
-Message::Message(Packable *p, MessageType type) {
-    m_size = 0;
-    m_type = type;
+Message::Message(Packable *p, MessageType type,
+                 MessageEncryption encryption_method, u32 cid)
+    : m_type(type), m_encryption(encryption_method), m_size(0) {
+    const u8 *content_buf = const_cast<u8 *>(p->pack(&m_size));
 
-    const u8 *content_buf = p->pack(&m_size);
+    if (m_encryption == MESSAGE_ENCRYPTION_SYMMETRIC) {
+        INFO("Encrypting message using symmetric method");
+        DWORD encrypted_size;
+        const u8 *encrypted = encryption::g_instance->Encrypt(
+            cid, content_buf, m_size, &encrypted_size);
+        delete[] content_buf;
+        content_buf = encrypted;
+        m_size = encrypted_size;
+    }
+
     usize content_size = m_size;
 
     m_size += sizeof(m_size);
     m_size += sizeof(m_type);
+    m_size += sizeof(m_encryption);
 
     m_buf = new u8[m_size];
     auto buf = const_cast<u8 *>(m_buf);
@@ -24,12 +36,34 @@ Message::Message(Packable *p, MessageType type) {
     buf += sizeof(m_size);
     *buf = m_type;
     buf += sizeof(m_type);
+    *buf = m_encryption;
+    buf += sizeof(m_encryption);
     std::memcpy(buf, content_buf, content_size);
 }
 
-Message::Message(Request *req) : Message(req, MESSAGE_REQUEST) {}
+Message::Message(MessageType type, const u8 *buf, usize size,
+                 MessageEncryption encryption_method)
+    : m_type(type), m_encryption(encryption_method), m_size(size) {
+    m_size += sizeof(m_size);
+    m_size += sizeof(m_type);
+    m_size += sizeof(m_encryption);
+    m_buf = new u8[m_size];
+    auto tmp = const_cast<u8 *>(m_buf);
 
-Message::Message(Response *resp) : Message(resp, MESSAGE_RESPONSE) {}
+    *reinterpret_cast<usize *>(tmp) = utils::ntoh_generic(m_size);
+    tmp += sizeof(m_size);
+    *tmp = m_type;
+    tmp += sizeof(m_type);
+    *tmp = m_encryption;
+    tmp += sizeof(m_encryption);
+    std::memcpy(tmp, buf, size);
+}
+
+Message::Message(Request *req, MessageEncryption encryption_method, u32 cid)
+    : Message(req, MESSAGE_REQUEST, encryption_method, cid) {}
+
+Message::Message(Response *resp, MessageEncryption encryption_method, u32 cid)
+    : Message(resp, MESSAGE_RESPONSE, encryption_method, cid) {}
 
 usize Message::size() const { return m_size; }
 
@@ -37,7 +71,7 @@ MessageType Message::type() const { return m_type; }
 
 const u8 *Message::buf() const { return m_buf; }
 
-Message::Message(const u8 *buf) {
+Message::Message(u32 cid, const u8 *buf) {
     m_size = utils::ntoh_generic(*reinterpret_cast<const usize *>(buf));
     INFO("Received Message of size %llu", m_size);
     utils::dump_memory(buf, MIN(m_size, MAX_MSG_SIZE));
@@ -45,7 +79,17 @@ Message::Message(const u8 *buf) {
     buf += sizeof(m_size);
     m_type = static_cast<MessageType>(*buf);
     buf += sizeof(m_type);
+    m_encryption = static_cast<MessageEncryption>(*buf);
+    buf += sizeof(m_encryption);
+
     m_buf = new u8[m_size];
+    if (m_encryption == MESSAGE_ENCRYPTION_SYMMETRIC) {
+        DWORD content_size =
+            m_size - sizeof(m_size) - sizeof(m_type) - sizeof(m_encryption);
+        DWORD decrypted_size;
+        const u8 *decrypted = encryption::g_instance->Decrypt(cid, buf, content_size, &decrypted_size);
+        buf = decrypted;
+    }
     std::memcpy(const_cast<u8 *>(m_buf), buf, m_size);
 }
 

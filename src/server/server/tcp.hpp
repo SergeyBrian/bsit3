@@ -23,6 +23,7 @@ typedef proto::Response *(*HandlerFunc)(proto::Request *);
 
 namespace server::tcp {
 struct Client {
+    u32 id = 0;
     SOCKET socket = INVALID_SOCKET;
     u8 recvBuf[MAX_BUF_SIZE] = {};
     u8 sendBuf[MAX_BUF_SIZE] = {};
@@ -61,7 +62,7 @@ private:
 
     void ScheduleAccept();
 
-    void ScheduleRead(u32 key);
+    void ScheduleRead(u32 key, bool reset = false);
 
     void AddAcceptedConnection();
 

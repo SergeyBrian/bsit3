@@ -1,6 +1,7 @@
 #include "tcp.hpp"
 
 #include "../../common/logging.hpp"
+#include "../../common/proto/encryption/encryption.hpp"
 
 namespace server::tcp {
 std::vector<Server *> servers;
@@ -29,6 +30,7 @@ Server::Server(u16 port) {
     if (!cleanupSet) {
         SetConsoleCtrlHandler(ConsoleHandler, TRUE);
     }
+    proto::encryption::init();
 }
 
 void Server::RegisterHandler(proto::RequestType type, HandlerFunc handler) {
@@ -110,6 +112,7 @@ void Server::AddAcceptedConnection() {
             key++;
             continue;
         }
+        client.id = key;
         u32 ip = 0;
         sockaddr_in *localAddr = nullptr;
         sockaddr_in *remoteAddr = nullptr;
@@ -132,6 +135,7 @@ void Server::AddAcceptedConnection() {
                 PRINT_ERROR("CreateIoCompletionPort", WSAGetLastError());
                 break;
             }
+            proto::encryption::g_instance->CreateSymmetricKey(client.id);
             ScheduleRead(key);
             return;
         }
@@ -140,21 +144,28 @@ void Server::AddAcceptedConnection() {
     m_acceptSocket = INVALID_SOCKET;
 }
 
-void Server::ScheduleRead(u32 key) {
+void Server::ScheduleRead(u32 key, bool reset) {
     WSABUF buf;
     Client &client = m_clients[key];
+    if (reset) {
+        client.recvBufSize = 0;
+    }
     buf.buf = reinterpret_cast<char *>(client.recvBuf + client.recvBufSize);
     buf.len = sizeof(client.recvBuf) - client.recvBufSize;
     std::memset(&client.recvOverlap, 0, sizeof(OVERLAPPED));
     client.recvFlags = 0;
-    WSARecv(client.socket, &buf, 1, nullptr, &client.recvFlags,
-            &client.recvOverlap, nullptr);
+    int res = WSARecv(client.socket, &buf, 1, nullptr, &client.recvFlags,
+                      &client.recvOverlap, nullptr);
+    if (res == SOCKET_ERROR) {
+        PRINT_ERROR("WSARecv", WSAGetLastError());
+    }
 }
 
 void Server::ProcessEvent(ULONG_PTR key, OVERLAPPED *overlap,
                           DWORD transferred) {
     Client &client = m_clients[key];
     if (&client.recvOverlap == overlap) {
+        INFO("Recv overlap triggered");
         if (transferred == 0) {
             CancelIo(reinterpret_cast<HANDLE>(client.socket));
             PostQueuedCompletionStatus(m_ioPort, 0, key, &client.cancelOverlap);
@@ -166,15 +177,23 @@ void Server::ProcessEvent(ULONG_PTR key, OVERLAPPED *overlap,
             ScheduleRead(key);
             return;
         }
-        ProcessMessage(client, proto::Message(client.recvBuf));
+        ProcessMessage(client, proto::Message(client.id, client.recvBuf));
+        INFO("ProcessMessage done");
+        client.recvBufSize = 0;
     } else if (&client.sendOverlap == overlap) {
+        INFO("Send overlap triggered");
         client.sentSize += transferred;
         if (client.sentSize < client.sendBufSize && transferred > 0) {
+            INFO("Written %lu bytes. %llu more to be sent", transferred,
+                 client.sendBufSize - client.sentSize);
             ScheduleWrite(client);
             return;
         }
-        ScheduleTimeout(key);
+        INFO("Written %lu bytes. That's it", transferred);
+//        ScheduleRead(client.id, true);
+        //        ScheduleTimeout(key);
     } else if (&client.cancelOverlap == overlap) {
+        INFO("Cancel overlap triggered");
         closesocket(client.socket);
         std::memset(&m_clients[key], 0, sizeof(m_clients[key]));
         client.socket = INVALID_SOCKET;
@@ -183,6 +202,26 @@ void Server::ProcessEvent(ULONG_PTR key, OVERLAPPED *overlap,
 }
 
 void Server::ProcessMessage(Client &client, const proto::Message &message) {
+    if (message.type() == proto::MESSAGE_KEY_REQUEST) {
+        INFO("Received key request");
+        DWORD size;
+        auto buf = proto::encryption::g_instance->ExportSymmetricKey(
+            client.id, &size, message.buf(), message.size());
+        proto::Message msg(proto::MESSAGE_KEY_RESPONSE, buf, size,
+                           proto::MESSAGE_ENCRYPTION_ASYMMETRIC);
+
+        client.sendBufSize = msg.size();
+        client.sentSize = 0;
+        std::memcpy(client.sendBuf, msg.buf(), msg.size());
+        INFO("Sent message with key of size %llu", msg.size());
+        utils::dump_memory(msg.buf(), msg.size());
+        ScheduleWrite(client);
+        INFO("Schedule write key done.");
+        ScheduleRead(client.id, true);
+        INFO("Schedule read next message done.");
+        return;
+    }
+
     proto::Request req(message.buf());
     INFO("Received request %d", req.type);
     if (!m_handlers.contains(req.type)) {
@@ -195,7 +234,7 @@ void Server::ProcessMessage(Client &client, const proto::Message &message) {
 }
 
 void Server::SendResponse(Client &client, proto::Response *resp) {
-    proto::Message msg(resp);
+    proto::Message msg(resp, proto::MESSAGE_ENCRYPTION_SYMMETRIC, client.id);
     client.sendBufSize = msg.size();
     client.sentSize = 0;
     std::memcpy(client.sendBuf, msg.buf(), msg.size());
@@ -210,7 +249,11 @@ void Server::ScheduleWrite(Client &client) {
         .buf = reinterpret_cast<CHAR *>(client.sendBuf + client.sentSize),
     };
     std::memset(&client.sendOverlap, 0, sizeof(OVERLAPPED));
-    WSASend(client.socket, &buf, 1, nullptr, 0, &client.sendOverlap, nullptr);
+    int res = WSASend(client.socket, &buf, 1, nullptr, 0, &client.sendOverlap,
+                      nullptr);
+    if (res) {
+        PRINT_ERROR("WSASend", WSAGetLastError());
+    }
 }
 
 void Server::ScheduleTimeout(ULONG_PTR key) {

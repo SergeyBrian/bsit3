@@ -8,8 +8,8 @@
 #include "data.hpp"
 
 #ifdef _WIN32
-#include <sddl.h>
 #include <windows.h>
+#include <sddl.h>
 
 #pragma comment(lib, "AdvApi32.lib")
 #endif

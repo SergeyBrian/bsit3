@@ -4,6 +4,7 @@
 
 #include "../../common/logging.hpp"
 #include "tcp.hpp"
+#include "../../common/proto/encryption/encryption.hpp"
 
 namespace connector {
 Connector::Connector(const std::string &host, u16 port) {
@@ -17,6 +18,8 @@ Connector::Connector(const std::string &host, u16 port) {
     }
     OKAY("Initialized connector for %s:%d", host.c_str(), port);
     m_canConnect = true;
+    proto::encryption::init();
+    proto::encryption::g_instance->CreateAsymmetricKey();
 }
 
 bool Connector::canConnect() const { return m_canConnect; }
