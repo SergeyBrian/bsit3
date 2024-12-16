@@ -8,6 +8,10 @@ namespace cli {
 Cli::Cli() : Cli("", "") {}
 
 Cli::Cli(const std::string &host, const std::string &port) {
+    std::locale::global(std::locale("ru_RU.UTF-8"));
+    std::wcin.imbue(std::locale());
+    std::wcout.imbue(std::locale());
+
     g_instance = this;
 
     u16 p = ParsePort(port);
