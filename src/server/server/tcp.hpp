@@ -7,6 +7,7 @@
 #include <mswsock.h>
 
 #include <unordered_map>
+#include <chrono>
 
 #include "../../common/alias.hpp"
 #include "../../common/proto/message.hpp"
@@ -23,6 +24,7 @@ typedef proto::Response *(*HandlerFunc)(proto::Request *);
 
 namespace server::tcp {
 struct Client {
+    std::chrono::steady_clock::time_point last_activity = std::chrono::steady_clock::now();
     u32 id = 0;
     SOCKET socket = INVALID_SOCKET;
     u8 recvBuf[MAX_BUF_SIZE] = {};
@@ -74,7 +76,7 @@ private:
 
     void ScheduleWrite(Client &client);
 
-    void ScheduleTimeout(ULONG_PTR key);
+    void ScheduleDisconnect(ULONG_PTR key);
 };
 }  // namespace server::tcp
 
