@@ -157,7 +157,9 @@ void Server::ScheduleRead(u32 key, bool reset) {
     int res = WSARecv(client.socket, &buf, 1, nullptr, &client.recvFlags,
                       &client.recvOverlap, nullptr);
     if (res == SOCKET_ERROR) {
-        PRINT_ERROR("WSARecv", WSAGetLastError());
+        if (WSAGetLastError() != ERROR_IO_PENDING) {
+            PRINT_ERROR("WSARecv", WSAGetLastError());
+        }
     }
 }
 
@@ -251,8 +253,10 @@ void Server::ScheduleWrite(Client &client) {
     std::memset(&client.sendOverlap, 0, sizeof(OVERLAPPED));
     int res = WSASend(client.socket, &buf, 1, nullptr, 0, &client.sendOverlap,
                       nullptr);
-    if (res) {
-        PRINT_ERROR("WSASend", WSAGetLastError());
+    if (res == SOCKET_ERROR) {
+        if (WSAGetLastError() != ERROR_IO_PENDING) {
+            PRINT_ERROR("WSASend", WSAGetLastError());
+        }
     }
 }
 

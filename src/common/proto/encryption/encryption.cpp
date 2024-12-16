@@ -92,6 +92,7 @@ const u8 *EncryptionManager::Decrypt(u32 cid, const u8 *buf, usize size, DWORD *
 }
 
 void EncryptionManager::PrintHash(HCRYPTKEY hKey) const {
+#ifndef NDEBUG
     DWORD blobLen = 0;
 
     if (!CryptExportKey(hKey, 0, PLAINTEXTKEYBLOB, 0, NULL, &blobLen)) {
@@ -149,6 +150,7 @@ void EncryptionManager::PrintHash(HCRYPTKEY hKey) const {
     CryptDestroyHash(hHash);
     free(keyBlob);
     free(hashValue);
+#endif
 }
 
 void init() {

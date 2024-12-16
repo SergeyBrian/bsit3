@@ -6,6 +6,7 @@
 namespace utils {
 
 void dump_memory(const void *ptr, usize size) {
+#ifndef NDEBUG
     const uint8_t *bytePtr = static_cast<const uint8_t *>(ptr);
     const usize bytesPerLine = 16;
 
@@ -39,5 +40,6 @@ void dump_memory(const void *ptr, usize size) {
 
         std::cout << std::dec << std::endl;
     }
+#endif
 }
 }  // namespace utils
