@@ -45,7 +45,7 @@ public:
 
     ERR Connect(const std::string &host, u16 port);
 
-    ERR Send(proto::Message *msg) const;
+    ERR Send(proto::Message *msg);
 
     bool Expired();
 
@@ -59,7 +59,8 @@ private:
     int m_socket = 0;
 #endif
 
-    std::chrono::time_point<std::chrono::steady_clock> m_lastConnTime;
+    std::chrono::steady_clock::time_point m_lastConnTime =
+        std::chrono::steady_clock::now();
     std::chrono::seconds m_timeout;
 };
 }  // namespace connector::tcp

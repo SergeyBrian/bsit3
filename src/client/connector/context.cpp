@@ -95,7 +95,8 @@ ERR Context::Connect(const std::string &host, u16 port) {
 #endif
 
 #ifdef _WIN32
-ERR Context::Send(proto::Message *msg) const {
+ERR Context::Send(proto::Message *msg) {
+    m_lastConnTime = std::chrono::steady_clock::now();
     INFO("Sending request...");
     int res = send(m_socket, reinterpret_cast<const char *>(msg->buf()),
                    static_cast<int>(msg->size()), 0);
@@ -111,6 +112,7 @@ ERR Context::Send(proto::Message *msg) const {
 }
 #else
 ERR Context::Send(proto::Message *msg) const {
+    m_lastConnTime = std::chrono::steady_clock::now();
     INFO("Sending request...");
     int res = send(m_socket, reinterpret_cast<const char *>(msg->buf()),
                    static_cast<int>(msg->size()), 0);

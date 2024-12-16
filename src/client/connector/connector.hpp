@@ -16,7 +16,7 @@ public:
 
     [[nodiscard]] bool canConnect() const;
 
-    [[nodiscard]] bool checkConnection() const;
+    bool checkConnection();
 
     void setServer(std::string host, u16 port);
 
@@ -35,6 +35,8 @@ public:
     ERR getRights(AccessRightsInfo *res, const std::wstring &str) const;
 
     ERR getOwner(OwnerInfo *res, const std::wstring &str) const;
+
+    static void disconnect();
 
 private:
     std::string m_host;

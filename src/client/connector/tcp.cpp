@@ -8,9 +8,19 @@
 namespace connector::tcp {
 Context *ctx;
 
-ERR reconnect(const std::string &host, u16 port) {
+void disconnect() {
+    INFO("Disconnecting");
     delete ctx;
+    ctx = nullptr;
+}
+
+ERR reconnect(const std::string &host, u16 port) {
+    INFO("Removing old context");
+    delete ctx;
+    OKAY("Done.");
+    INFO("Creating new context");
     ctx = new Context();
+    OKAY("Done");
     ERR err = ctx->Connect(host, port);
 
     DWORD size;

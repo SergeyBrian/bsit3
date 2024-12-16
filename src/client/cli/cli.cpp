@@ -12,6 +12,7 @@ Cli::Cli(const std::string &host, const std::string &port) {
 
     u16 p = ParsePort(port);
     m_connector = new connector::Connector(host, p);
+    m_connector->checkConnection();
 }
 
 void Cli::run() {
@@ -139,6 +140,9 @@ ERR Cli::exec(CMD cmd, int argc, wchar_t **argv) {
             return getRights(argv[1]);
         case CMD_GetOwner:
             return getOwner(argv[1]);
+        case CMD_Disconnect:
+            inputConnectionInfo();
+            return err;
         default:
             break;
     }
@@ -147,6 +151,7 @@ ERR Cli::exec(CMD cmd, int argc, wchar_t **argv) {
 }
 
 void Cli::inputConnectionInfo() {
+    m_connector->disconnect();
     std::string host;
     std::string port_str;
 

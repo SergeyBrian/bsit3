@@ -24,9 +24,11 @@ Connector::Connector(const std::string &host, u16 port) {
 
 bool Connector::canConnect() const { return m_canConnect; }
 
-bool Connector::checkConnection() const {
+bool Connector::checkConnection() {
     if (!m_canConnect) return false;
-    return getOsInfo(nullptr) == ERR_Ok;
+    bool res = getOsInfo(nullptr) == ERR_Ok;
+    m_canConnect = res;
+    return res;
 }
 
 void Connector::setServer(std::string host, u16 port) {
@@ -155,5 +157,8 @@ ERR Connector::getOwner(OwnerInfo *res, const std::wstring &str) const {
     }
 
     return err;
+}
+void Connector::disconnect() {
+    tcp::disconnect();
 }
 }  // namespace connector

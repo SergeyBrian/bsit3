@@ -1,3 +1,4 @@
+#include <cassert>
 #include "tcp.hpp"
 
 #include "../../common/logging.hpp"
@@ -6,7 +7,7 @@
 namespace server::tcp {
 std::vector<Server *> servers;
 bool cleanupSet = false;
-const std::chrono::seconds TIMEOUT(10);
+const std::chrono::seconds TIMEOUT(20);
 
 void TCPCleanup() {
     for (auto srv : servers) {
@@ -82,12 +83,12 @@ ERR Server::Start() {
         ULONG_PTR key = 0;
         OVERLAPPED *overlap;
 
-        bool status = GetQueuedCompletionStatus(m_ioPort, &transferred, &key,
-                                                &overlap, TIMEOUT.count() * 1000);
+        bool status = GetQueuedCompletionStatus(
+            m_ioPort, &transferred, &key, &overlap, TIMEOUT.count() * 1000);
         if (!status) {
             INFO("Timeout check triggered");
             auto now = std::chrono::steady_clock::now();
-            for (const auto& client : m_clients) {
+            for (const auto &client : m_clients) {
                 // First "client" is acutally the accept socket so skip it
                 if (client.id == 0 || client.socket == INVALID_SOCKET) continue;
                 if (now - client.last_activity > TIMEOUT) {
@@ -142,7 +143,7 @@ void Server::AddAcceptedConnection() {
                              reinterpret_cast<LPINT>(&remoteAddrSize));
         if (remoteAddr) {
             ip = ntohl(remoteAddr->sin_addr.s_addr);
-            LOG("Client %u.%u.%u.%u connected", (ip >> 24) & 0xff,
+            LOG("Client %d (%u.%u.%u.%u) connected", key, (ip >> 24) & 0xff,
                 (ip >> 16) & 0xff, (ip >> 8) & 0xff, (ip) & 0xff);
             client.socket = m_acceptSocket;
             if (!CreateIoCompletionPort(reinterpret_cast<HANDLE>(client.socket),
@@ -208,8 +209,7 @@ void Server::ProcessEvent(ULONG_PTR key, OVERLAPPED *overlap,
             return;
         }
         INFO("Written %lu bytes. That's it", transferred);
-        //        ScheduleRead(client.id, true);
-        //        ScheduleDisconnect(key);
+        ScheduleRead(client.id, true);
     } else if (&client.cancelOverlap == overlap) {
         INFO("Cancel overlap triggered");
         closesocket(client.socket);
@@ -277,9 +277,14 @@ void Server::ScheduleWrite(Client &client) {
 }
 
 void Server::ScheduleDisconnect(ULONG_PTR key) {
+    assert(key != 0 && "Attempted to disconnect the accept socket");
     INFO("Disconnect scheduled for client %lu", key);
     Client &client = m_clients[key];
-    CancelIo(reinterpret_cast<HANDLE>(client.socket));
+    if (!CancelIo(reinterpret_cast<HANDLE>(client.socket))) {
+        PRINT_ERROR("CancelIO", WSAGetLastError());
+        return;
+    }
+
     PostQueuedCompletionStatus(m_ioPort, 0, key, &client.cancelOverlap);
 }
 
