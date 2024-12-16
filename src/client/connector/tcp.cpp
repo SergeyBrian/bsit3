@@ -22,6 +22,9 @@ ERR reconnect(const std::string &host, u16 port) {
     ctx = new Context();
     OKAY("Done");
     ERR err = ctx->Connect(host, port);
+    if (err != ERR_Ok) {
+        return err;
+    }
 
     DWORD size;
     auto buf = proto::encryption::g_instance->ExportPublicKey(&size);

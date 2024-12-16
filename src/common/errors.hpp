@@ -2,6 +2,7 @@
 #define ERRORS_HPP
 
 #include "alias.hpp"
+#include "logging.hpp"
 
 enum ERR : u8 {
     ERR_Ok,
@@ -16,7 +17,7 @@ inline const char *errorText[ERR_Count_] = {
         "No error",
         "Permission denied",
         "Unknown error",
-        "Can't Connect to server",
+        "Connection refused by server",
         "Invalid response",
 };
 
@@ -28,7 +29,11 @@ inline ERR winCodeToErr(int code) {
         case 5:
         case 22:
             return ERR_Permission_denied;
+        case 10061:
+        case 10038:
+            return ERR_Connect;
         default:
+            WARN("Unknown error code: %d", code);
             return ERR_Unknown;
     }
 }

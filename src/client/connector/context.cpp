@@ -66,7 +66,6 @@ ERR Context::Connect(const std::string &host, u16 port) {
     freeaddrinfo(addr);
 
     if (this->m_socket == INVALID_SOCKET) {
-        WARN("Can't Connect to server");
         return ERR_Connect;
     }
 
