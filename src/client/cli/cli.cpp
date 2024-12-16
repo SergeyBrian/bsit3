@@ -1,5 +1,7 @@
 #include "cli.hpp"
 
+#include <windows.h>
+
 #include "../../common/logging.hpp"
 #include "../../common/utils.hpp"
 
@@ -8,9 +10,11 @@ namespace cli {
 Cli::Cli() : Cli("", "") {}
 
 Cli::Cli(const std::string &host, const std::string &port) {
-    std::locale::global(std::locale("ru_RU.UTF-8"));
+    std::locale::global(std::locale("en_US.UTF-8"));
     std::wcin.imbue(std::locale());
     std::wcout.imbue(std::locale());
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
 
     g_instance = this;
 
@@ -28,6 +32,7 @@ void Cli::run() {
         std::wstring command;
         std::cout << m_connector->getHostStr() << " > ";
         std::getline(std::wcin >> std::ws, command);
+        INFO("%S", command.data());
         if (command.empty()) {
             cmd = CMD_Count_;
             continue;
