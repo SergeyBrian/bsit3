@@ -275,6 +275,8 @@ OwnerInfo get_owner_info(const std::wstring &path) {
         ownerInfo.ownerName = name;
         ownerInfo.ownerDomain = domain;
     }
+    DWORD sidLength = GetLengthSid(ownerSid);
+    memcpy(ownerInfo.sid.data(), ownerSid, sidLength);
 
     LocalFree(securityDescriptor);
 

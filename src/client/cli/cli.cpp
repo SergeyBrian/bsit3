@@ -1,9 +1,12 @@
 #include "cli.hpp"
 
 #include <windows.h>
+#include <sddl.h>
 
 #include "../../common/logging.hpp"
 #include "../../common/utils.hpp"
+
+#pragma comment(lib, "AdvApi32.lib")
 
 namespace cli {
 
@@ -282,7 +285,17 @@ ERR Cli::getOwner(const wchar_t *path) {
     OwnerInfo info{};
     ERR err = m_connector->getOwner(&info, path);
 
-    std::cout << info.ownerDomain << "\\" << info.ownerName << "\n";
+    std::cout << info.ownerDomain << "\\" << info.ownerName << " ";
+    char *sidString = nullptr;
+    if (ConvertSidToStringSidA(
+            reinterpret_cast<PSID>(
+                const_cast<unsigned char *>(info.sid.data())),
+            &sidString)) {
+        std::cout << "SID: " << sidString << "\n";
+        LocalFree(sidString);
+    } else {
+        std::cout << "SID: (failed to convert SID to string format)\n";
+    }
     return err;
 }
 }  // namespace cli

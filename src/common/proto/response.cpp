@@ -148,6 +148,7 @@ const u8 *OwnerResponse::pack(usize *size) const {
     ctx.push(RESP_OWNER);
     ctx.push(info.ownerDomain.data(), info.ownerDomain.size());
     ctx.push(info.ownerName.data(), info.ownerName.size());
+    ctx.push(info.sid.data(), info.sid.size());
 
     return ctx.pack(size);
 }
@@ -158,6 +159,9 @@ OwnerResponse::OwnerResponse(PackCtx *ctx, ERR *err) {
     info.ownerDomain.assign(domainName, name_size);
     auto name = ctx->pop<char>(&name_size);
     info.ownerName.assign(name, name_size);
+    usize sid_size;
+    auto sid = ctx->pop<u8>(&sid_size);
+    std::memcpy(info.sid.data(), sid, sid_size);
 
     *err = ERR_Ok;
 }

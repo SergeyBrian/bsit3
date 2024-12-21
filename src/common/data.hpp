@@ -6,20 +6,10 @@
 #include <vector>
 #include <array>
 
-enum OSType : u8 {
-    OS_WIN32,
-    OS_WIN64,
-    OS_WINARM,
-    OS_WINARM64,
-    OS_UNKNOWN
-};
+enum OSType : u8 { OS_WIN32, OS_WIN64, OS_WINARM, OS_WINARM64, OS_UNKNOWN };
 
 inline const char *OSTypeName[] = {
-        "Windows x86",
-        "Windows x64",
-        "Windows ARM",
-        "Windows ARM64",
-        "Windows",
+    "Windows x86", "Windows x64", "Windows ARM", "Windows ARM64", "Windows",
 };
 
 struct OSVersion {
@@ -45,13 +35,8 @@ enum DriveType : u8 {
     DRIVE_TYPE_UNKNOWN
 };
 
-inline const char *DriveTypeName[] = {
-        "local",
-        "network",
-        "removable",
-        "file system",
-        "unknown"
-};
+inline const char *DriveTypeName[] = {"local", "network", "removable",
+                                      "file system", "unknown"};
 
 struct DriveInfo {
     DriveType type;
@@ -85,6 +70,7 @@ struct AccessRightsInfo {
 struct OwnerInfo {
     std::string ownerName;
     std::string ownerDomain;
+    std::array<u8, 32> sid;
 };
 
 #endif
