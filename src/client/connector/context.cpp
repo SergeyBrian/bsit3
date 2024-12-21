@@ -3,7 +3,7 @@
 #include "../../common/logging.hpp"
 
 namespace connector::tcp {
-Context::Context(std::chrono::seconds timeout) : m_timeout(timeout) {
+Context::Context(u32 cid, std::chrono::seconds timeout) : m_timeout(timeout), m_id(cid) {
 #ifdef _WIN32
     WSAStartup(MAKEWORD(2, 2), &m_wsaData);
 #endif
@@ -148,7 +148,7 @@ proto::Message Context::Receive(ERR *err) {
     *err = ERR_Ok;
     // TODO: Pass received size to Message constructor to prevent memory
     // overflow exploit
-    return proto::Message(1, reinterpret_cast<const u8 *>(buf));
+    return proto::Message(m_id, reinterpret_cast<const u8 *>(buf));
 }
 #else
 proto::Message Context::Receive(ERR *err) {

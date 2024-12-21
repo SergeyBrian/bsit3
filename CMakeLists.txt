@@ -24,6 +24,8 @@ set(COMMON_SRC
         src/common/tcp_utils.hpp
         src/common/proto/encryption/encryption.cpp
         src/common/proto/encryption/encryption.hpp
+        src/common/utils.cpp
+        src/common/utils.hpp
 )
 
 add_executable(server src/server/main.cpp
@@ -44,8 +46,6 @@ add_executable(client src/client/main.cpp
         src/common/utils.hpp
         src/common/str_utils.hpp
         src/common/str_utils.cpp
-        src/client/connector/tcp.cpp
-        src/client/connector/tcp.hpp
         src/client/connector/context.cpp
         src/client/connector/context.hpp)
 

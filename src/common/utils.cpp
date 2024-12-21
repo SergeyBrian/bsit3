@@ -202,4 +202,17 @@ void print_access_rights(const AccessRightsInfo &rightsInfo) {
         std::cout << "\n";
     }
 }
+std::string to_string(const std::wstring &wstr) {
+    std::string res;
+    res.reserve(wstr.size());
+    for (wchar_t wc : wstr) {
+        if (wc <= 0x7F) {
+            res.push_back(static_cast<char>(wc));
+        } else {
+            throw std::runtime_error(
+                "to_string: non-ASCII character encountered");
+        }
+    }
+    return res;
+}
 }  // namespace utils

@@ -8,11 +8,12 @@
 #include "../../common/errors.hpp"
 #include "../../common/proto/request.hpp"
 #include "../../common/proto/response.hpp"
+#include "context.hpp"
 
 namespace connector {
 class Connector {
 public:
-    Connector(const std::string &host, u16 port);
+    Connector(u32 cid, const std::string &host, u16 port);
 
     [[nodiscard]] bool canConnect() const;
 
@@ -22,28 +23,32 @@ public:
 
     std::string getHostStr();
 
-    ERR getOsInfo(OSInfo *res) const;
+    ERR getOsInfo(OSInfo *res);
 
-    ERR getTime(u64 *time, i8 *time_zone = nullptr) const;
+    ERR getTime(u64 *time, i8 *time_zone = nullptr);
 
-    ERR getUptime(u64 *res) const;
+    ERR getUptime(u64 *res);
 
-    ERR getMemory(MemInfo *res) const;
+    ERR getMemory(MemInfo *res);
 
-    ERR getDrives(std::vector<DriveInfo> *res) const;
+    ERR getDrives(std::vector<DriveInfo> *res);
 
-    ERR getRights(AccessRightsInfo *res, const std::wstring &str) const;
+    ERR getRights(AccessRightsInfo *res, const std::wstring &str);
 
-    ERR getOwner(OwnerInfo *res, const std::wstring &str) const;
+    ERR getOwner(OwnerInfo *res, const std::wstring &str);
 
-    static void disconnect();
+    void disconnect();
+
+    ERR reconnect();
 
 private:
     std::string m_host;
     u16 m_port;
     bool m_canConnect;
+    tcp::Context *m_ctx = nullptr;
+    u32 m_id;
 
-    proto::Response *exec(proto::Request *req, ERR *err) const;
+    proto::Response *exec(proto::Request *req, ERR *err);
 };
 }  // namespace connector
 

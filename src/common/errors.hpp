@@ -10,15 +10,16 @@ enum ERR : u8 {
     ERR_Unknown,
     ERR_Connect,
     ERR_Invalid_Response,
+    ERR_InvalidArgument,
+    ERR_NotFound,
     ERR_Count_
 };
 
 inline const char *errorText[ERR_Count_] = {
-        "No error",
-        "Permission denied",
-        "Unknown error",
-        "Connection refused by server",
-        "Invalid response",
+    "No error",         "Permission denied",
+    "Unknown error",    "Connection refused by server",
+    "Invalid response", "Invalid argument",
+    "Server not found",
 };
 
 inline ERR winCodeToErr(int code) {

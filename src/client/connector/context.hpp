@@ -40,7 +40,7 @@ namespace connector::tcp {
 constexpr auto DefaultTimeout = std::chrono::seconds(20);
 class Context {
 public:
-    explicit Context(std::chrono::seconds timeout = DefaultTimeout);
+    explicit Context(u32 cid, std::chrono::seconds timeout = DefaultTimeout);
     ~Context();
 
     ERR Connect(const std::string &host, u16 port);
@@ -52,6 +52,7 @@ public:
     proto::Message Receive(ERR *err);
 
 private:
+    u32 m_id;
 #ifdef _WIN32
     WSADATA m_wsaData = {};
     SOCKET m_socket = INVALID_SOCKET;
