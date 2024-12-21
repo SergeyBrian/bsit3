@@ -25,7 +25,8 @@ Cli::Cli(const std::string &host, const std::string &port) {
     if (!host.empty() && !port.empty()) {
         u16 p = ParsePort(port);
         if (p != 0) {
-            auto *conn = new connector::Connector(m_connectors.size() + 1, host, p);
+            auto *conn =
+                new connector::Connector(m_connectors.size() + 1, host, p);
             if (conn->checkConnection()) {
                 m_connectors.push_back(conn);
                 m_activeServer = 0;
@@ -137,7 +138,10 @@ CMD Cli::parse_command(const std::wstring &command, int *argc,
 
     if (cmd == CMD_Count_) {
         if (!args.empty()) {
-            WARN("Unknown command: %S", args[0].c_str());
+            if (args[0] != L"help") {
+                WARN("Unknown command: %S", args[0].c_str());
+            }
+            PrintHelp();
         } else {
             WARN("Empty command");
         }
@@ -268,7 +272,8 @@ void Cli::inputConnectionInfo() {
             continue;
         }
 
-        auto *conn = new connector::Connector(m_connectors.size() + 1, host, port);
+        auto *conn =
+            new connector::Connector(m_connectors.size() + 1, host, port);
         if (!conn->checkConnection()) {
             WARN("Can't Connect to %s:%s", host.c_str(), port_str.c_str());
             delete conn;

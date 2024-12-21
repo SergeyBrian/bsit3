@@ -32,9 +32,10 @@ inline ERR winCodeToErr(int code) {
             return ERR_Permission_denied;
         case 10061:
         case 10038:
+        case 10054:
             return ERR_Connect;
         default:
-            WARN("Unknown error code: %d", code);
+            INFO("Unknown error code: %d", code);
             return ERR_Unknown;
     }
 }

@@ -46,7 +46,7 @@ proto::Response *Connector::exec(proto::Request *req, ERR *err) {
         INFO("Reconnecting to the server...");
         *err = reconnect();
         if (*err != ERR_Ok) {
-            WARN("Error connecting to server: %s", errorText[*err]);
+            INFO("Error connecting to server: %s", errorText[*err]);
             return nullptr;
         }
     }
