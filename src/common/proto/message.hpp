@@ -47,7 +47,7 @@ private:
                      MessageEncryption encryption_method, u32 cid);
     MessageType m_type;
     MessageEncryption m_encryption;
-    const u8 *m_buf = nullptr;
+    std::unique_ptr<const u8[]> m_buf{};
     usize m_size = 0;
 };
 

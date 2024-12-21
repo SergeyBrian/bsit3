@@ -25,7 +25,7 @@ struct Response : Packable {
 struct OsInfoResponse : Response {
     OSInfo info{};
 
-    const u8 *pack(usize *size) const override;
+    std::unique_ptr<const u8[]> pack(usize *size) const override;
 
     OsInfoResponse(PackCtx *ctx, ERR *err);
 
@@ -38,7 +38,7 @@ struct TimeResponse : Response {
     u64 time_ms = 0;
     i8 time_zone = 0;
 
-    const u8 *pack(usize *size) const override;
+    std::unique_ptr<const u8[]> pack(usize *size) const override;
 
     TimeResponse(PackCtx *ctx, ERR *err);
 
@@ -50,7 +50,7 @@ struct TimeResponse : Response {
 struct DrivesResponse : Response {
     std::vector<DriveInfo> drives;
 
-    const u8 *pack(usize *size) const override;
+    std::unique_ptr<const u8[]> pack(usize *size) const override;
 
     DrivesResponse(PackCtx *ctx, ERR *err);
 
@@ -62,7 +62,7 @@ struct DrivesResponse : Response {
 struct MemoryResponse : Response {
     MemInfo mem_info{};
 
-    const u8 *pack(usize *size) const override;
+    std::unique_ptr<const u8[]> pack(usize *size) const override;
 
     MemoryResponse(PackCtx *ctx, ERR *err);
 
@@ -74,7 +74,7 @@ struct MemoryResponse : Response {
 struct RightsResponse : Response {
     AccessRightsInfo rights_info{};
 
-    const u8 *pack(usize *size) const override;
+    std::unique_ptr<const u8[]> pack(usize *size) const override;
 
     RightsResponse(PackCtx *ctx, ERR *err);
 
@@ -86,7 +86,7 @@ struct RightsResponse : Response {
 struct OwnerResponse : Response {
     OwnerInfo info{};
 
-    const u8 *pack(usize *size) const override;
+    std::unique_ptr<const u8[]> pack(usize *size) const override;
 
     OwnerResponse(PackCtx *ctx, ERR *err);
 

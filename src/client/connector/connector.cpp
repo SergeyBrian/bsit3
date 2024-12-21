@@ -79,6 +79,7 @@ ERR Connector::getOsInfo(OSInfo *res) {
     if (res) {
         *res = reinterpret_cast<proto::OsInfoResponse *>(resp)->info;
     }
+    delete resp;
 
     return err;
 }
@@ -99,6 +100,7 @@ ERR Connector::getTime(u64 *res, i8 *time_zone) {
     if (time_zone) {
         *time_zone = reinterpret_cast<proto::TimeResponse *>(resp)->time_zone;
     }
+    delete resp;
 
     return err;
 }
@@ -115,6 +117,7 @@ ERR Connector::getUptime(u64 *res) {
     if (res) {
         *res = reinterpret_cast<proto::TimeResponse *>(resp)->time_ms;
     }
+    delete resp;
 
     return err;
 }
@@ -131,6 +134,7 @@ ERR Connector::getMemory(MemInfo *res) {
     if (res) {
         *res = reinterpret_cast<proto::MemoryResponse *>(resp)->mem_info;
     }
+    delete resp;
 
     return err;
 }
@@ -147,6 +151,7 @@ ERR Connector::getDrives(std::vector<DriveInfo> *res) {
     if (res) {
         *res = reinterpret_cast<proto::DrivesResponse *>(resp)->drives;
     }
+    delete resp;
 
     return err;
 }
@@ -163,6 +168,7 @@ ERR Connector::getRights(AccessRightsInfo *res, const std::wstring &str) {
     if (res) {
         *res = reinterpret_cast<proto::RightsResponse *>(resp)->rights_info;
     }
+    delete resp;
 
     return err;
 }
@@ -179,6 +185,7 @@ ERR Connector::getOwner(OwnerInfo *res, const std::wstring &str) {
     if (res) {
         *res = reinterpret_cast<proto::OwnerResponse *>(resp)->info;
     }
+    delete resp;
 
     return err;
 }

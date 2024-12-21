@@ -5,6 +5,7 @@
 #include <wincrypt.h>
 
 #include <unordered_map>
+#include <memory>
 
 #include "../../alias.hpp"
 
@@ -22,8 +23,8 @@ public:
                                  DWORD pub_key_size);
 
     void ImportSymmetricKey(u32 cid, const u8 *buf, usize size);
-    const u8 *Encrypt(u32 cid, const u8 *buf, usize size, DWORD *res_size);
-    const u8 *Decrypt(u32 cid, const u8 *buf, usize size, DWORD *res_size);
+    std::unique_ptr<const u8[]> Encrypt(u32 cid, const u8 *buf, usize size, DWORD *res_size);
+    std::unique_ptr<const u8[]> Decrypt(u32 cid, const u8 *buf, usize size, DWORD *res_size);
 
     void PrintHash(HCRYPTKEY hKey) const;
 

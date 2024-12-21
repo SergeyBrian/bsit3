@@ -21,7 +21,7 @@ struct Request : Packable {
     RequestType type;
     std::wstring arg;
 
-    const u8 *pack(usize *size) const override;
+    std::unique_ptr<const u8[]> pack(usize *size) const override;
     explicit Request(RequestType type);
     Request(RequestType type, std::wstring arg);
     explicit Request(const u8 *buf);

@@ -37,7 +37,8 @@ const u8 *EncryptionManager::ExportPublicKey(DWORD *size) {
 }
 void EncryptionManager::ImportSymmetricKey(u32 cid, const u8 *buf, usize size) {
     HCRYPTKEY sym_key;
-    CryptImportKey(m_provider, buf, size, m_keys[0], CRYPT_EXPORTABLE, &sym_key);
+    CryptImportKey(m_provider, buf, size, m_keys[0], CRYPT_EXPORTABLE,
+                   &sym_key);
     m_keys[cid] = sym_key;
 }
 const u8 *EncryptionManager::ExportSymmetricKey(u32 cid, DWORD *size,
@@ -56,39 +57,39 @@ const u8 *EncryptionManager::ExportSymmetricKey(u32 cid, DWORD *size,
     return buf;
 }
 
-const u8 *EncryptionManager::Encrypt(u32 cid, const u8 *buf, usize size,
-                                     DWORD *res_size) {
+std::unique_ptr<const u8[]> EncryptionManager::Encrypt(u32 cid, const u8 *buf,
+                                                       usize size,
+                                                       DWORD *res_size) {
     INFO("Encrypt called for key id %d.", cid);
     PrintHash(m_keys[cid]);
     usize content_size = size;
     usize encrypted_size = content_size + 16;
-    auto encrypted_buf = new u8[encrypted_size];
-    std::memset(encrypted_buf, 0, encrypted_size);
-    std::memcpy(encrypted_buf, buf, size);
+    auto encrypted_buf = std::make_unique<u8[]>(encrypted_size);
+    std::memset(encrypted_buf.get(), 0, encrypted_size);
+    std::memcpy(encrypted_buf.get(), buf, size);
     *res_size = content_size;
-    CryptEncrypt(m_keys[cid], 0, true, 0, encrypted_buf, res_size,
+    CryptEncrypt(m_keys[cid], 0, true, 0, encrypted_buf.get(), res_size,
                  encrypted_size);
-    auto res = new u8[*res_size];
-    std::memcpy(res, encrypted_buf, *res_size);
-    delete[] encrypted_buf;
-    return res;
+    auto res = std::make_unique<u8[]>(*res_size);
+    std::memcpy(res.get(), encrypted_buf.get(), *res_size);
+    return std::move(res);
 }
 
-
-const u8 *EncryptionManager::Decrypt(u32 cid, const u8 *buf, usize size, DWORD *res_size) {
+std::unique_ptr<const u8[]> EncryptionManager::Decrypt(u32 cid, const u8 *buf,
+                                                       usize size,
+                                                       DWORD *res_size) {
     INFO("Decrypt called for key id %d.", cid);
     PrintHash(m_keys[cid]);
     usize content_size = size;
     usize decrypted_size = content_size;
-    auto decrypted_buf = new u8[decrypted_size];
-    std::memset(decrypted_buf, 0, decrypted_size);
-    std::memcpy(decrypted_buf, buf, size);
+    auto decrypted_buf = std::make_unique<u8[]>(decrypted_size);
+    std::memset(decrypted_buf.get(), 0, decrypted_size);
+    std::memcpy(decrypted_buf.get(), buf, size);
     *res_size = decrypted_size;
-    CryptDecrypt(m_keys[cid], 0, true, 0, decrypted_buf, res_size);
-    auto res = new u8[*res_size];
-    std::memcpy(res, decrypted_buf, *res_size);
-    delete[] decrypted_buf;
-    return res;
+    CryptDecrypt(m_keys[cid], 0, true, 0, decrypted_buf.get(), res_size);
+    auto res = std::make_unique<u8[]>(*res_size);
+    std::memcpy(res.get(), decrypted_buf.get(), *res_size);
+    return std::move(res);
 }
 
 void EncryptionManager::PrintHash(HCRYPTKEY hKey) const {
@@ -100,7 +101,7 @@ void EncryptionManager::PrintHash(HCRYPTKEY hKey) const {
         return;
     }
 
-    BYTE* keyBlob = (BYTE*)malloc(blobLen);
+    BYTE *keyBlob = (BYTE *)malloc(blobLen);
 
     if (!CryptExportKey(hKey, 0, PLAINTEXTKEYBLOB, 0, keyBlob, &blobLen)) {
         printf("Error in CryptExportKey: %d\n", GetLastError());
@@ -124,14 +125,15 @@ void EncryptionManager::PrintHash(HCRYPTKEY hKey) const {
 
     DWORD hashLen = 0;
     DWORD hashLenSize = sizeof(DWORD);
-    if (!CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE*)&hashLen, &hashLenSize, 0)) {
+    if (!CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE *)&hashLen, &hashLenSize,
+                           0)) {
         printf("Error in CryptGetHashParam: %d\n", GetLastError());
         CryptDestroyHash(hHash);
         free(keyBlob);
         return;
     }
 
-    BYTE* hashValue = (BYTE*)malloc(hashLen);
+    BYTE *hashValue = (BYTE *)malloc(hashLen);
 
     if (!CryptGetHashParam(hHash, HP_HASHVAL, hashValue, &hashLen, 0)) {
         printf("Error in CryptGetHashParam: %d\n", GetLastError());

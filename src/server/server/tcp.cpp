@@ -36,6 +36,7 @@ Server::Server(u16 port) {
 }
 
 void Server::RegisterHandler(proto::RequestType type, HandlerFunc handler) {
+    assert(!m_handlers.contains(type) && "Handler already assigned");
     m_handlers[type] = handler;
 }
 

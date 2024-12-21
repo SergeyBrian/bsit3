@@ -7,7 +7,7 @@
 #include "../logging.hpp"
 
 namespace proto {
-const u8 *OsInfoResponse::pack(usize *size) const {
+std::unique_ptr<const u8[]>OsInfoResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_OS_INFO);
     ctx.push(info.type);
@@ -26,7 +26,7 @@ OsInfoResponse::OsInfoResponse(PackCtx *ctx, ERR *err) {
 
 OsInfoResponse::OsInfoResponse(OSInfo info) : info(info) {}
 
-const u8 *TimeResponse::pack(usize *size) const {
+std::unique_ptr<const u8[]>TimeResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_TIME);
     ctx.push(time_ms);
@@ -45,7 +45,7 @@ TimeResponse::TimeResponse(PackCtx *ctx, ERR *err) {
 TimeResponse::TimeResponse(u64 time, i8 time_zone)
     : time_ms(time), time_zone(time_zone) {}
 
-const u8 *DrivesResponse::pack(usize *size) const {
+std::unique_ptr<const u8[]>DrivesResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_DRIVES);
     ctx.push(static_cast<usize>(drives.size()));
@@ -70,9 +70,9 @@ DrivesResponse::DrivesResponse(PackCtx *ctx, ERR *err) {
         INFO("Free bytes: %llu", di.free_bytes);
         usize name_size;
         auto name = ctx->pop<char>(&name_size);
-        INFO("Name: %s", name);
+        INFO("Name: %s", name.get());
         /*#ifdef _WIN32*/
-        di.name.assign(name, name_size);
+        di.name.assign(name.get(), name_size);
         OKAY("Assigned name");
         /*#else*/
         /*        std::wstring_convert<std::codecvt_utf16<char32_t>, char32_t>
@@ -92,7 +92,7 @@ DrivesResponse::DrivesResponse(PackCtx *ctx, ERR *err) {
 DrivesResponse::DrivesResponse(const std::vector<DriveInfo> &drives)
     : drives(drives) {}
 
-const u8 *MemoryResponse::pack(usize *size) const {
+std::unique_ptr<const u8[]>MemoryResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_MEMORY);
     ctx.push(mem_info.free_bytes);
@@ -110,7 +110,7 @@ MemoryResponse::MemoryResponse(PackCtx *ctx, ERR *err) {
 
 MemoryResponse::MemoryResponse(MemInfo mem_info) : mem_info(mem_info) {}
 
-const u8 *RightsResponse::pack(usize *size) const {
+std::unique_ptr<const u8[]>RightsResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_RIGHTS);
     ctx.push(static_cast<usize>(rights_info.entries.size()));
@@ -132,8 +132,8 @@ RightsResponse::RightsResponse(PackCtx *ctx, ERR *err) {
         entry.aceType = ctx->pop<AceType>();
         entry.scope = ctx->pop<Scope>();
         usize sid_size;
-        u8 *sid = ctx->pop<u8>(&sid_size);
-        std::memcpy(entry.sid.data(), sid, entry.sid.size());
+        auto sid = ctx->pop<u8>(&sid_size);
+        std::memcpy(entry.sid.data(), sid.get(), entry.sid.size());
         rights_info.entries.push_back(entry);
     }
 
@@ -143,7 +143,7 @@ RightsResponse::RightsResponse(PackCtx *ctx, ERR *err) {
 RightsResponse::RightsResponse(AccessRightsInfo rights_info)
     : rights_info(std::move(rights_info)) {}
 
-const u8 *OwnerResponse::pack(usize *size) const {
+std::unique_ptr<const u8[]>OwnerResponse::pack(usize *size) const {
     PackCtx ctx;
     ctx.push(RESP_OWNER);
     ctx.push(info.ownerDomain.data(), info.ownerDomain.size());
@@ -156,12 +156,12 @@ const u8 *OwnerResponse::pack(usize *size) const {
 OwnerResponse::OwnerResponse(PackCtx *ctx, ERR *err) {
     usize name_size;
     auto domainName = ctx->pop<char>(&name_size);
-    info.ownerDomain.assign(domainName, name_size);
+    info.ownerDomain.assign(domainName.get(), name_size);
     auto name = ctx->pop<char>(&name_size);
-    info.ownerName.assign(name, name_size);
+    info.ownerName.assign(name.get(), name_size);
     usize sid_size;
     auto sid = ctx->pop<u8>(&sid_size);
-    std::memcpy(info.sid.data(), sid, sid_size);
+    std::memcpy(info.sid.data(), sid.get(), sid_size);
 
     *err = ERR_Ok;
 }
