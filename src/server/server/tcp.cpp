@@ -40,6 +40,18 @@ void Server::RegisterHandler(proto::RequestType type, HandlerFunc handler) {
     m_handlers[type] = handler;
 }
 
+void Server::TimeoutCheck() {
+    INFO("Timeout check triggered");
+    auto now = std::chrono::steady_clock::now();
+    for (const auto &client : m_clients) {
+        // First "client" is acutally the accept socket so skip it
+        if (client.id == 0 || client.socket == INVALID_SOCKET) continue;
+        if (now - client.last_activity > TIMEOUT) {
+            ScheduleDisconnect(client.id);
+        }
+    }
+}
+
 ERR Server::Start() {
     int res = WSAStartup(MAKEWORD(2, 2), &m_wsaData);
     if (res) {
@@ -87,15 +99,7 @@ ERR Server::Start() {
         bool status = GetQueuedCompletionStatus(
             m_ioPort, &transferred, &key, &overlap, TIMEOUT.count() * 1000);
         if (!status) {
-            INFO("Timeout check triggered");
-            auto now = std::chrono::steady_clock::now();
-            for (const auto &client : m_clients) {
-                // First "client" is acutally the accept socket so skip it
-                if (client.id == 0 || client.socket == INVALID_SOCKET) continue;
-                if (now - client.last_activity > TIMEOUT) {
-                    ScheduleDisconnect(client.id);
-                }
-            }
+            TimeoutCheck();
             continue;
         }
 
@@ -122,6 +126,7 @@ void Server::ScheduleAccept() {
 }
 
 void Server::AddAcceptedConnection() {
+    TimeoutCheck();
     u32 key = 0;
     for (auto &client : m_clients) {
         if (client.socket != INVALID_SOCKET) {
@@ -159,6 +164,7 @@ void Server::AddAcceptedConnection() {
     }
     closesocket(m_acceptSocket);
     m_acceptSocket = INVALID_SOCKET;
+    WARN("Failed to connect. Client pool full");
 }
 
 void Server::ScheduleRead(u32 key, bool reset) {
@@ -213,6 +219,9 @@ void Server::ProcessEvent(ULONG_PTR key, OVERLAPPED *overlap,
         ScheduleRead(client.id, true);
     } else if (&client.cancelOverlap == overlap) {
         INFO("Cancel overlap triggered");
+        if (client.socket == INVALID_SOCKET) {
+            return;
+        }
         closesocket(client.socket);
         std::memset(&m_clients[key], 0, sizeof(m_clients[key]));
         client.socket = INVALID_SOCKET;

@@ -77,6 +77,8 @@ private:
     void ScheduleWrite(Client &client);
 
     void ScheduleDisconnect(ULONG_PTR key);
+
+    void TimeoutCheck();
 };
 }  // namespace server::tcp
 
